@@ -64,4 +64,14 @@ export const deleteChat = async (id: string): Promise<void> => {
   if (!response.ok) {
     throw new Error('Failed to delete chat');
   }
+};
+
+export const deleteMessagesFromChat = async (id: string, index: number): Promise<Chat> => {
+  const response = await fetch(`${API_URL}/chats/${id}/messages/${index}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete messages');
+  }
+  return response.json();
 }; 

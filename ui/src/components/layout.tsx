@@ -72,6 +72,18 @@ export const Layout: React.FC = () => {
     }
   };
 
+  const handleDeleteMessage = async (messageIndex: number) => {
+    if (!currentChat) return;
+    try {
+      await api.deleteMessagesFromChat(currentChat.id, messageIndex);
+      const refreshedChat = await api.getChat(currentChat.id);
+      setCurrentChat(refreshedChat);
+      setChats(prev => prev.map(chat => (chat.id === refreshedChat.id ? refreshedChat : chat)));
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading) return;
 
@@ -131,6 +143,7 @@ export const Layout: React.FC = () => {
           messages={currentChat?.messages ?? []}
           isLoading={isLoading}
           loadingText={loadingText}
+          onDeleteMessage={handleDeleteMessage}
         />
         <ChatInput
           message={message}

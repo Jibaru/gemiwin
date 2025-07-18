@@ -2,16 +2,17 @@ import React from 'react';
 import { isMarkdown } from '@/lib/utils';
 import { MarkdownRenderer } from './markdown-renderer';
 import * as api from '@/services/api';
-import { Copy } from 'lucide-react';
+import { Copy, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface ChatMessagesProps {
   messages: api.Message[];
   isLoading: boolean;
   loadingText: string;
+  onDeleteMessage?: (index: number) => void;
 }
 
-export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, loadingText }) => {
+export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, loadingText, onDeleteMessage }) => {
   const handleCopy = (text: string) => {
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(text).then(() => toast('Copied')).catch(() => {});
@@ -43,13 +44,24 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
                 msg.content
               )}
             </div>
-            <button
-              onClick={() => handleCopy(msg.content)}
-              aria-label="Copy message"
-              className="self-end mt-1 opacity-60 hover:opacity-100"
-            >
-              <Copy className="h-4 w-4" />
-            </button>
+            <div className="flex gap-1 self-end mt-1">
+              <button
+                onClick={() => handleCopy(msg.content)}
+                aria-label="Copy message"
+                className="opacity-60 hover:opacity-100"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+              {onDeleteMessage && msg.role === 'user' && (
+                <button
+                  onClick={() => onDeleteMessage(index)}
+                  aria-label="Delete message"
+                  className="opacity-60 hover:opacity-100"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ))}
