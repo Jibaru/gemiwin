@@ -89,9 +89,14 @@ func (s *ChatService) AddMessageToChat(id string, content string) (*domain.Chat,
 }
 
 // AddFileToChat adds a file as a message. If id is empty, a new chat is created.
-func (s *ChatService) AddFileToChat(id string, fileName string, fileBytes []byte) (*domain.Chat, string, error) {
+func (s *ChatService) AddFileToChat(id string, userContent string, fileName string, fileBytes []byte) (*domain.Chat, string, error) {
 	// Step 1: get or create chat
-	chat, err := s.getOrCreateChat(id, fileName)
+	defaultName := userContent
+	if defaultName == "" {
+		defaultName = fileName
+	}
+
+	chat, err := s.getOrCreateChat(id, defaultName)
 	if err != nil || chat == nil {
 		return chat, "", err
 	}
@@ -113,11 +118,11 @@ func (s *ChatService) AddFileToChat(id string, fileName string, fileBytes []byte
 		Content: content,
 	}
 
-	// Step 5: append user message with document. The message content is set to the original file name.
+	// Step 5: append user message with document. The message content comes from the request.
 	userMessage := domain.Message{
 		Role:      domain.UserRole,
 		Type:      "doc",
-		Content:   fileName,
+		Content:   userContent,
 		Document:  document,
 		Timestamp: time.Now(),
 	}

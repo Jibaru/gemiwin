@@ -373,6 +373,10 @@
                   "file": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "User message associated with the file."
                   }
                 },
                 "required": ["file"]
@@ -440,6 +444,10 @@
                   "file": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "User message associated with the file."
                   }
                 },
                 "required": ["file"]

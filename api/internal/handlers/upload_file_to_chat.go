@@ -26,7 +26,9 @@ func UploadFileToChat(service *services.ChatService) gin.HandlerFunc {
 			return
 		}
 
-		chat, _, err := service.AddFileToChat(chatID, header.Filename, bytes)
+		userContent := c.PostForm("content")
+
+		chat, _, err := service.AddFileToChat(chatID, userContent, header.Filename, bytes)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

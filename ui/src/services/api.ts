@@ -90,9 +90,11 @@ export const deleteMessagesFromChat = async (id: string, index: number): Promise
 export const uploadFileToChat = async (
   id: string,
   file: File,
+  content: string,
 ): Promise<Chat> => {
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('content', content);
 
   const response = await fetch(`${API_URL}/chats/${id}/files`, {
     method: 'POST',
@@ -105,9 +107,10 @@ export const uploadFileToChat = async (
 };
 
 // Upload a file and create a new chat when no ID exists.
-export const uploadFileNewChat = async (file: File): Promise<Chat> => {
+export const uploadFileNewChat = async (file: File, content: string): Promise<Chat> => {
   const formData = new FormData();
   formData.append('file', file);
+  formData.append('content', content);
 
   const response = await fetch(`${API_URL}/chats/files`, {
     method: 'POST',

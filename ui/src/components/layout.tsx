@@ -85,28 +85,54 @@ export const Layout: React.FC = () => {
   };
 
   const handleSendMessage = async (content: string, file: File | null) => {
-    if ((content.trim() === '' && !file) || isLoading) return;
+    if (isLoading) return;
+
+    // Require content when uploading a file
+    if (file && content.trim() === '') return;
+
+    if (!file && content.trim() === '') return;
 
     setMessage('');
     setIsLoading(true);
 
     try {
-      // 1. If there's a file, handle it first
+      // If a file is being uploaded, a message is mandatory
       if (file) {
+        const tempDocMsg: api.Message = {
+          role: 'user',
+          type: 'doc',
+          content: content,
+          document: { id: 'temp', name: file.name, url: '' },
+          timestamp: new Date().toISOString(),
+        };
+
         if (currentChat) {
-          const updatedChat = await api.uploadFileToChat(currentChat.id, file);
+          // Optimistic update
+          setCurrentChat(prev => ({ ...prev!, messages: [...prev!.messages, tempDocMsg] }));
+          setChats(prev => prev.map(c => (c.id === currentChat.id ? { ...c, messages: [...c.messages, tempDocMsg] } : c)));
+
+          const updatedChat = await api.uploadFileToChat(currentChat.id, file, content);
           setCurrentChat(updatedChat);
           setChats(prev => prev.map(c => (c.id === updatedChat.id ? updatedChat : c)));
         } else {
-          // Upload and create new chat when none exists
-          const newChat = await api.uploadFileNewChat(file);
-          setCurrentChat(newChat);
-          setChats(prev => [...prev, newChat]);
-        }
-      }
+          // Create temp chat with optimistic message
+          const tempChat: api.Chat = {
+            id: `temp-${Date.now()}`,
+            name: content || file.name,
+            created_at: new Date().toISOString(),
+            messages: [tempDocMsg],
+          };
 
-      // 2. Then, if there's text content, send it
-      if (content.trim()) {
+          setCurrentChat(tempChat);
+          setChats(prev => [...prev, tempChat]);
+
+          // Upload file and create new chat
+          const newChat = await api.uploadFileNewChat(file, content);
+          setCurrentChat(newChat);
+          setChats(prev => prev.map(c => (c.id === tempChat.id ? newChat : c)));
+        }
+      } else if (content.trim()) {
+        // Text-only flow (no file)
         if (currentChat) {
           const newUserMessage: api.Message = {
             role: 'user',
@@ -120,8 +146,8 @@ export const Layout: React.FC = () => {
           const updatedChat = await api.addMessageToChat(currentChat.id, content);
           setCurrentChat(updatedChat);
           setChats(prev => prev.map(c => (c.id === updatedChat.id ? updatedChat : c)));
-        } else if (!file) {
-          // Only create a new chat via text if it hasn't been created by file upload
+        } else {
+          // Create a new chat via text
           const tempChat: api.Chat = {
             id: `temp-${Date.now()}`,
             name: 'New Chat',

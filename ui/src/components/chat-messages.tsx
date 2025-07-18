@@ -47,21 +47,34 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
           <div className={`relative p-2 rounded-lg flex flex-col ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
             <div>
               {msg.type === 'doc' && msg.document ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const url = `${api.API_URL}/${msg.document.url}`;
-                    if (window.electronAPI) {
-                      window.electronAPI.openExternal(url);
-                    } else {
-                      window.open(url, '_blank', 'noopener,noreferrer');
-                    }
-                  }}
-                  className="flex items-center gap-2 hover:underline text-left"
-                >
-                  <FileText className="w-4 h-4" />
-                  {msg.document.name}
-                </button>
+                <div className="flex flex-col gap-1">
+                  {msg.document.url ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = `${api.API_URL}${msg.document.url}`;
+                        // Prefer opening via the main process in Electron so that PDFs render correctly
+                        if (window?.electronAPI?.openExternal) {
+                          window.electronAPI.openExternal(url);
+                        } else {
+                          window.open(url, '_blank', 'noopener,noreferrer');
+                        }
+                      }}
+                      className="flex items-center gap-2 hover:underline text-left"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {msg.document.name}
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <FileText className="w-4 h-4" />
+                      {msg.document.name}
+                    </div>
+                  )}
+                  {msg.content && (
+                    <span className="whitespace-pre-wrap">{msg.content}</span>
+                  )}
+                </div>
               ) : msg.role === 'bot' && isMarkdown(msg.content) ? (
                 <MarkdownRenderer content={msg.content} className="markdown" />
               ) : (
@@ -69,7 +82,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
               )}
             </div>
             <div className="flex gap-1 self-end mt-1">
-              {msg.type === 'text' && (
+              {(msg.type === 'text' || (msg.type === 'doc' && msg.content)) && (
                 <button
                   onClick={() => handleCopy(msg.content)}
                   aria-label="Copy message"

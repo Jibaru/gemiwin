@@ -31,6 +31,12 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onChange, onSend,
 
   const handleSend = () => {
     if (isLoading) return;
+
+    // When uploading a file, a message is now mandatory
+    if (file && message.trim() === '') {
+      return;
+    }
+
     onSend(message, file);
     // Do not clear file immediately; wait until request finishes (isLoading becomes false)
   };
@@ -46,11 +52,11 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onChange, onSend,
     <footer className="p-4 border-t border-border" onDragOver={handleDragOver} onDrop={handleDrop}>
       <div className="flex space-x-2 items-center">
         <Input
-          placeholder="Type a message or drop a file..."
+          placeholder="Type a message..."
           value={message}
           onChange={(e) => onChange(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          disabled={isLoading || !!file}
+          disabled={isLoading}
         />
 
         <input
@@ -70,7 +76,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onChange, onSend,
           <Paperclip className="w-4 h-4" />
         </Button>
 
-        <Button onClick={handleSend} disabled={isLoading}>Send</Button>
+        <Button onClick={handleSend} disabled={isLoading || (file ? message.trim() === '' : false)}>Send</Button>
       </div>
 
       {file && (
