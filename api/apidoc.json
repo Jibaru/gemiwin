@@ -565,6 +565,68 @@
           }
         }
       }
+    },
+    "/chats/{id}/config": {
+      "put": {
+        "summary": "Update chat configuration",
+        "description": "Updates the configuration of a specific chat (e.g., model).",
+        "operationId": "updateChatConfig",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the chat whose configuration will be updated.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Configuration values to update.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChatConfig" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat updated with new configuration.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Chat" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to update configuration.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -661,6 +723,17 @@
           "content": {
             "type": "string",
             "description": "The content of the message to be sent."
+          }
+        }
+      },
+      "ChatConfig": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string",
+            "description": "LLM model used for this chat.",
+            "enum": ["gemini-2.5-pro", "gemini-2.5-flash"],
+            "default": "gemini-2.5-pro"
           }
         }
       },

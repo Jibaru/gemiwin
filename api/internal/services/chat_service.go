@@ -40,6 +40,7 @@ func (s *ChatService) AddMessageToChat(id string, content string) (*domain.Chat,
 			ID:        uuid.New().String(),
 			Name:      content,
 			CreatedAt: time.Now(),
+			Config:    domain.ChatConfig{Model: domain.DefaultModel},
 			Messages:  []domain.Message{},
 		}
 		if err := s.repo.Create(chat); err != nil {
@@ -159,6 +160,7 @@ func (s *ChatService) getOrCreateChat(id string, defaultName string) (*domain.Ch
 			ID:        uuid.New().String(),
 			Name:      defaultName,
 			CreatedAt: time.Now(),
+			Config:    domain.ChatConfig{Model: domain.DefaultModel},
 			Messages:  []domain.Message{},
 		}
 		if err := s.repo.Create(chat); err != nil {
@@ -250,5 +252,31 @@ func (s *ChatService) DeleteMessagesFromIndex(id string, index int) (*domain.Cha
 		return nil, err
 	}
 
+	return chat, nil
+}
+
+// UpdateChatConfig updates configuration fields of a chat identified by id.
+func (s *ChatService) UpdateChatConfig(id string, cfg domain.ChatConfig) (*domain.Chat, error) {
+	chat, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if chat == nil {
+		return nil, nil
+	}
+
+	// Validate model if provided
+	if cfg.Model != "" {
+		switch cfg.Model {
+		case domain.ModelGemini25Pro, domain.ModelGemini25Flash:
+			chat.Config.Model = cfg.Model
+		default:
+			return nil, fmt.Errorf("invalid model: %s", cfg.Model)
+		}
+	}
+
+	if err := s.repo.Update(chat); err != nil {
+		return nil, err
+	}
 	return chat, nil
 }

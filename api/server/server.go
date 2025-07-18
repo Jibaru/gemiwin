@@ -33,7 +33,13 @@ func New() *gin.Engine {
 	r.POST("/chats/:id/files", handlers.UploadFileToChat(chatService))
 	r.DELETE("/chats/:id", handlers.DeleteChat(chatService))
 	r.DELETE("/chats/:id/messages/:index", handlers.DeleteMessagesFromChat(chatService))
+
+	// Update chat-specific configuration
+	r.PUT("/chats/:id/config", handlers.UpdateChatConfig(chatService))
+
+	// Endpoint for retrieving global configuration
 	r.GET("/config", handlers.GetAppConfig(appConfigService))
+	// Endpoint for updating global configuration
 	r.PUT("/config", handlers.UpdateAppConfig(appConfigService))
 
 	return r
