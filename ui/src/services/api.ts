@@ -23,6 +23,11 @@ export interface Chat {
   messages: Message[];
 }
 
+// Global configuration object returned by /config
+export interface AppConfig {
+  gemini_api_key: string;
+}
+
 export const createChat = async (content: string): Promise<Chat> => {
   const response = await fetch(`${API_URL}/chats`, {
     method: 'POST',
@@ -118,6 +123,30 @@ export const uploadFileNewChat = async (file: File, content: string): Promise<Ch
   });
   if (!response.ok) {
     throw new Error('Failed to upload file and create chat');
+  }
+  return response.json();
+};
+
+// Retrieve the global application configuration
+export const getAppConfig = async (): Promise<AppConfig> => {
+  const response = await fetch(`${API_URL}/config`);
+  if (!response.ok) {
+    throw new Error('Failed to load configuration');
+  }
+  return response.json();
+};
+
+// Update or create the global application configuration
+export const updateAppConfig = async (config: AppConfig): Promise<AppConfig> => {
+  const response = await fetch(`${API_URL}/config`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(config),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update configuration');
   }
   return response.json();
 }; 
