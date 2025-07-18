@@ -1,8 +1,18 @@
-const API_URL = 'http://localhost:8080';
+export const API_URL = 'http://localhost:8080';
+
+// Document metadata for messages of type 'doc'
+export interface Document {
+  id: string;
+  name: string;
+  url: string;
+}
 
 export interface Message {
   role: 'user' | 'bot';
+  // Distinguish between plain text and document messages
+  type: 'text' | 'doc';
   content: string;
+  document?: Document | null;
   timestamp: string;
 }
 
@@ -72,6 +82,39 @@ export const deleteMessagesFromChat = async (id: string, index: number): Promise
   });
   if (!response.ok) {
     throw new Error('Failed to delete messages');
+  }
+  return response.json();
+};
+
+// Upload a file to an existing chat (or pass a placeholder id like 'new' to create a chat)
+export const uploadFileToChat = async (
+  id: string,
+  file: File,
+): Promise<Chat> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_URL}/chats/${id}/files`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error('Failed to upload file');
+  }
+  return response.json();
+};
+
+// Upload a file and create a new chat when no ID exists.
+export const uploadFileNewChat = async (file: File): Promise<Chat> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${API_URL}/chats/files`, {
+    method: 'POST',
+    body: formData,
+  });
+  if (!response.ok) {
+    throw new Error('Failed to upload file and create chat');
   }
   return response.json();
 }; 

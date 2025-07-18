@@ -1,2 +1,6 @@
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge, shell } from 'electron';
+
+// Expose a minimal API to the renderer for opening external links
+contextBridge.exposeInMainWorld('electronAPI', {
+  openExternal: (url: string) => shell.openExternal(url),
+});

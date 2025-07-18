@@ -2,8 +2,16 @@ import React from 'react';
 import { isMarkdown } from '@/lib/utils';
 import { MarkdownRenderer } from './markdown-renderer';
 import * as api from '@/services/api';
-import { Copy, Trash2 } from 'lucide-react';
+import { Copy, Trash2, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+declare global {
+  interface Window {
+    electronAPI?: {
+      openExternal: (url: string) => void;
+    };
+  }
+}
 
 interface ChatMessagesProps {
   messages: api.Message[];
@@ -38,21 +46,39 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
         <div key={index} className={`flex mb-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
           <div className={`relative p-2 rounded-lg flex flex-col ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
             <div>
-              {msg.role === 'bot' && isMarkdown(msg.content) ? (
+              {msg.type === 'doc' && msg.document ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = `${api.API_URL}/${msg.document.url}`;
+                    if (window.electronAPI) {
+                      window.electronAPI.openExternal(url);
+                    } else {
+                      window.open(url, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  className="flex items-center gap-2 hover:underline text-left"
+                >
+                  <FileText className="w-4 h-4" />
+                  {msg.document.name}
+                </button>
+              ) : msg.role === 'bot' && isMarkdown(msg.content) ? (
                 <MarkdownRenderer content={msg.content} className="markdown" />
               ) : (
                 msg.content
               )}
             </div>
             <div className="flex gap-1 self-end mt-1">
-              <button
-                onClick={() => handleCopy(msg.content)}
-                aria-label="Copy message"
-                className="opacity-60 hover:opacity-100"
-              >
-                <Copy className="h-4 w-4" />
-              </button>
-              {onDeleteMessage && msg.role === 'user' && (
+              {msg.type === 'text' && (
+                <button
+                  onClick={() => handleCopy(msg.content)}
+                  aria-label="Copy message"
+                  className="opacity-60 hover:opacity-100"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+              )}
+              {onDeleteMessage && msg.role === 'user' && msg.type === 'text' && (
                 <button
                   onClick={() => onDeleteMessage(index)}
                   aria-label="Delete message"
