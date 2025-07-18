@@ -15,6 +15,7 @@ export const Layout: React.FC = () => {
   const [currentChat, setCurrentChat] = useState<api.Chat | null>(null);
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('Thinking.');
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -23,6 +24,33 @@ export const Layout: React.FC = () => {
     };
     fetchChats();
   }, []);
+
+  // Rotate loading messages and dots while waiting for the bot response
+  useEffect(() => {
+    if (!isLoading) return;
+
+    const messages = [
+      'Thinking',
+      'Consulting the AI',
+      'Crunching some data',
+      'Summoning wisdom',
+    ];
+
+    let msgIndex = 0;
+    let dotCount = 1;
+
+    const interval = setInterval(() => {
+      // advance dots 1→2→3→1
+      dotCount = dotCount % 3 + 1;
+      // every time we loop back to 1 dot, change the base message
+      if (dotCount === 1) {
+        msgIndex = (msgIndex + 1) % messages.length;
+      }
+      setLoadingText(`${messages[msgIndex]}${'.'.repeat(dotCount)}`);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   const handleDeleteChat = async (chatId: string) => {
     await api.deleteChat(chatId);
@@ -48,9 +76,24 @@ export const Layout: React.FC = () => {
         setCurrentChat(updatedChat);
         setChats(chats.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat)));
       } else {
+        // Optimistically show the user message while creating a new chat
+        const tempChat: api.Chat = {
+          id: `temp-${Date.now()}`,
+          name: 'New Chat',
+          created_at: new Date().toISOString(),
+          messages: [
+            { role: 'user', content: userMessageContent, timestamp: new Date().toISOString() },
+          ],
+        };
+
+        setCurrentChat(tempChat);
+        setChats(prev => [...prev, tempChat]);
+
         const newChat = await api.createChat(userMessageContent);
+
+        // Replace temporary chat with real chat
         setCurrentChat(newChat);
-        setChats(prevChats => [...prevChats, newChat]);
+        setChats(prev => prev.map(c => (c.id === tempChat.id ? newChat : c)));
       }
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -125,7 +168,7 @@ export const Layout: React.FC = () => {
           {isLoading && (
             <div className="flex mb-2 justify-start">
               <div className="p-2 rounded-lg bg-secondary">
-                Thinking...
+                {loadingText}
               </div>
             </div>
           )}
