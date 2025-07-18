@@ -3,19 +3,29 @@ package services
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
 	"gemiwin/api/internal/domain"
+	"gemiwin/api/internal/persistence"
 )
 
-type BotService struct{}
+// BotService generates responses using the Gemini CLI, injecting global and chat configs.
+type BotService struct {
+	cfgRepo *persistence.AppConfigRepository
+}
 
-func NewBotService() *BotService {
-	return &BotService{}
+func NewBotService(cfgRepo *persistence.AppConfigRepository) *BotService {
+	return &BotService{cfgRepo: cfgRepo}
 }
 
 func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
+	// Load global configuration
+	appCfg, err := s.cfgRepo.Load()
+	if err != nil {
+		return "", fmt.Errorf("failed to load app config: %w", err)
+	}
 	var conversation strings.Builder
 
 	conversation.WriteString("You are the bot, and I am the user.\n")
@@ -39,11 +49,22 @@ func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
 
 	cmd := exec.Command("gemini", "-p", escapedPrompt)
 
+	// Prepare environment variables
+	env := os.Environ()
+	if appCfg != nil && appCfg.GeminiApiKey != "" {
+		env = append(env, "GEMINI_API_KEY="+appCfg.GeminiApiKey)
+	}
+	model := chat.Config.Model
+	if model == "" {
+		model = domain.DefaultModel
+	}
+	env = append(env, "GEMINI_MODEL="+model)
+	cmd.Env = env
+
 	var out bytes.Buffer
 	cmd.Stdout = &out
 
-	err := cmd.Run()
-	if err != nil {
+	if err = cmd.Run(); err != nil {
 		return "", fmt.Errorf("error executing gemini command: %w", err)
 	}
 

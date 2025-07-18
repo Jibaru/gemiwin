@@ -17,12 +17,11 @@ func New() *gin.Engine {
 	// Serve uploaded files statically
 	r.Static("/files", "./data/files")
 
-	chatRepo := persistence.NewChatRepository()
-	botService := services.NewBotService()
-	chatService := services.NewChatService(chatRepo, botService)
-
-	// Initialize AppConfig dependencies
+	// Initialize repositories and services
 	appConfigRepo := persistence.NewAppConfigRepository()
+	botService := services.NewBotService(appConfigRepo)
+	chatRepo := persistence.NewChatRepository()
+	chatService := services.NewChatService(chatRepo, botService)
 	appConfigService := services.NewAppConfigService(appConfigRepo)
 
 	r.GET("/chats", handlers.ListChats(chatService))
