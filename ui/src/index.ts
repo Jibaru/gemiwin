@@ -18,8 +18,8 @@ const createWindow = (): void => {
 
   // 1) Splash window – plain color matching React splash gradient start (black)
   const splash = new BrowserWindow({
-    width: 400,
-    height: 300,
+    width: winWidth,
+    height: winHeight,
     frame: false,
     transparent: false,
     resizable: false,
