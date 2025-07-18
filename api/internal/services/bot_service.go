@@ -17,11 +17,18 @@ func NewBotService() *BotService {
 
 func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
 	var conversation strings.Builder
-	conversation.WriteString("You are a bot, and I am a user. This is a conversation context and you have to answer. Conversation: ")
+
+	conversation.WriteString("You are the bot, and I am the user. ")
+	conversation.WriteString("Use the previous conversation ONLY as context to answer the final question. ")
+	conversation.WriteString("Do NOT repeat the context, greet, or add extra information. ")
+	conversation.WriteString("You must respond in the SAME LANGUAGE used in the user's last message. ")
+	conversation.WriteString("Conversation: ")
 
 	for _, msg := range chat.Messages {
-		conversation.WriteString(fmt.Sprintf("%s: %s; ", msg.Role, msg.Content))
+		conversation.WriteString(fmt.Sprintf("[new line]: %s: %s", msg.Role, msg.Content))
 	}
+
+	conversation.WriteString("[new line]: Your answer:")
 
 	prompt := conversation.String()
 	cmd := exec.Command("gemini", "-p", prompt)
