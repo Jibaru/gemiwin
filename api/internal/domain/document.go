@@ -1,7 +1,8 @@
 package domain
 
 type Document struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	URL     string `json:"url"`
+	Content string `json:"content,omitempty"`
 }

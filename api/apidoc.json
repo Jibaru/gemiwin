@@ -524,7 +524,7 @@
           },
           "content": {
             "type": "string",
-            "description": "The content of the message."
+            "description": "Text written by the user. For a document message, this is typically the original filename or a user caption."
           },
           "document": {
             "$ref": "#/components/schemas/Document",
@@ -552,6 +552,11 @@
           "url": {
             "type": "string",
             "description": "Public URL to download the stored document."
+          },
+          "content": {
+            "type": "string",
+            "description": "Extracted textual content of the document (if available).",
+            "nullable": true
           }
         }
       },

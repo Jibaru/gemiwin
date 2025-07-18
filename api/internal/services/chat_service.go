@@ -107,16 +107,17 @@ func (s *ChatService) AddFileToChat(id string, fileName string, fileBytes []byte
 
 	// Step 4: compose document metadata
 	document := &domain.Document{
-		ID:   storedFileName,
-		Name: fileName,
-		URL:  docURL,
+		ID:      storedFileName,
+		Name:    fileName,
+		URL:     docURL,
+		Content: content,
 	}
 
-	// Step 5: append user message with document
+	// Step 5: append user message with document. The message content is set to the original file name.
 	userMessage := domain.Message{
 		Role:      domain.UserRole,
 		Type:      "doc",
-		Content:   content,
+		Content:   fileName,
 		Document:  document,
 		Timestamp: time.Now(),
 	}

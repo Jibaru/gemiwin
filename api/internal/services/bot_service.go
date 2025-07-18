@@ -25,7 +25,11 @@ func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
 	conversation.WriteString("Conversation: \n")
 
 	for _, msg := range chat.Messages {
-		conversation.WriteString(fmt.Sprintf("%s: %s\n", msg.Role, msg.Content))
+		text := msg.Content
+		if msg.Type == "doc" && msg.Document != nil {
+			text = fmt.Sprintf("<doc:%s>%s</doc>", msg.Document.Name, msg.Document.Content)
+		}
+		conversation.WriteString(fmt.Sprintf("%s: %s\n", msg.Role, text))
 	}
 
 	conversation.WriteString("Your answer:")
