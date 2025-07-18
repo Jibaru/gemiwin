@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Moon, Sun, Trash2 } from 'lucide-react';
-import { useTheme } from '@/components/theme-provider';
+// UI imports are now handled by child components
 import * as api from '@/services/api';
-import { isMarkdown } from '@/lib/utils';
-import { MarkdownRenderer } from './markdown-renderer';
-import { ChatExporter } from './chat-exporter';
+import { ChatSidebar } from './chat-sidebar';
+import { ChatHeader } from './chat-header';
+import { ChatMessages } from './chat-messages';
+import { ChatInput } from './chat-input';
 
 export const Layout: React.FC = () => {
-  const { setTheme, theme } = useTheme();
   const [chats, setChats] = useState<api.Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<api.Chat | null>(null);
   const [message, setMessage] = useState('');
@@ -105,86 +101,27 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-background text-foreground">
-      <aside className="w-64 flex flex-col border-r border-border">
-        <div className="p-4 border-b border-border">
-          <h1 className="text-xl font-bold">Gemiwin</h1>
-          <Button variant="outline" size="sm" onClick={() => setCurrentChat(null)}>
-            New Chat
-          </Button>
-        </div>
-        <ScrollArea className="flex-1">
-          {chats.map((chat) => (
-            <div
-              key={chat.id}
-              className={`flex items-center justify-between p-2 cursor-pointer hover:bg-accent/50 ${
-                currentChat?.id === chat.id ? 'bg-accent' : ''
-              }`}
-              onClick={() => setCurrentChat(chat)}
-            >
-              <span className="truncate flex-1">{chat.name}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteChat(chat.id);
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </ScrollArea>
-        <div className="p-4 border-t border-border">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
-        </div>
-      </aside>
+      <ChatSidebar
+        chats={chats}
+        currentChat={currentChat}
+        onSelectChat={setCurrentChat}
+        onDeleteChat={handleDeleteChat}
+        onNewChat={() => setCurrentChat(null)}
+      />
+
       <main className="flex-1 flex flex-col">
-        <header className="p-4 border-b border-border flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{currentChat?.name || 'New Chat'}</h2>
-          {currentChat && <ChatExporter chat={currentChat} />}
-        </header>
-        <div id="chat-container" className="flex-1 p-4 overflow-y-auto">
-          {currentChat?.messages.map((msg, index) => (
-            <div key={index} className={`flex mb-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`p-2 rounded-lg ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
-                {msg.role === 'bot' && isMarkdown(msg.content) ? (
-                  <MarkdownRenderer content={msg.content} className="markdown" />
-                ) : (
-                  msg.content
-                )}
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex mb-2 justify-start">
-              <div className="p-2 rounded-lg bg-secondary">
-                {loadingText}
-              </div>
-            </div>
-          )}
-        </div>
-        <footer className="p-4 border-t border-border">
-          <div className="flex space-x-2">
-            <Input
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              disabled={isLoading}
-            />
-            <Button onClick={handleSendMessage} disabled={isLoading}>Send</Button>
-          </div>
-        </footer>
+        <ChatHeader currentChat={currentChat} />
+        <ChatMessages
+          messages={currentChat?.messages ?? []}
+          isLoading={isLoading}
+          loadingText={loadingText}
+        />
+        <ChatInput
+          message={message}
+          onChange={setMessage}
+          onSend={handleSendMessage}
+          isLoading={isLoading}
+        />
       </main>
     </div>
   );
