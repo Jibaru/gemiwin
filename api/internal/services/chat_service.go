@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"gemiwin/api/internal/domain"
@@ -84,4 +85,29 @@ func (s *ChatService) DeleteChatByID(id string) error {
 
 func (s *ChatService) ListChats() ([]*domain.Chat, error) {
 	return s.repo.FindAll()
+}
+
+// DeleteMessagesFromIndex removes the message at the given index and all subsequent messages.
+// It returns the updated chat or nil if the chat does not exist.
+func (s *ChatService) DeleteMessagesFromIndex(id string, index int) (*domain.Chat, error) {
+	chat, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if chat == nil {
+		return nil, nil
+	}
+
+	if index < 0 || index >= len(chat.Messages) {
+		return nil, fmt.Errorf("message index out of range")
+	}
+
+	// Keep messages before the specified index
+	chat.Messages = chat.Messages[:index]
+
+	if err := s.repo.Update(chat); err != nil {
+		return nil, err
+	}
+
+	return chat, nil
 }

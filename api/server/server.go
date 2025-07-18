@@ -23,6 +23,7 @@ func New() *gin.Engine {
 	r.GET("/chats/:id", handlers.GetChat(chatService))
 	r.POST("/chats/:id/messages", handlers.AddMessageToChat(chatService))
 	r.DELETE("/chats/:id", handlers.DeleteChat(chatService))
+	r.DELETE("/chats/:id/messages/:index", handlers.DeleteMessagesFromChat(chatService))
 
 	return r
 }

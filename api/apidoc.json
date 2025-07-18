@@ -273,6 +273,77 @@
             }
           }
         }
+      },
+      "/chats/{id}/messages/{index}": {
+        "delete": {
+          "summary": "Delete messages from an index",
+          "description": "Deletes the message at the specified index and all subsequent messages in a chat.",
+          "operationId": "deleteMessagesFromChat",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "ID of the chat.",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            {
+              "name": "index",
+              "in": "path",
+              "description": "Zero-based index of the message to delete (inclusive). All messages after this index will also be removed.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Chat successfully trimmed.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Chat"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid parameters.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Chat not found.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Failed to delete messages.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Error"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
