@@ -1,0 +1,316 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Gemiwin Chatbot API",
+    "description": "An API for interacting with a chatbot. You can create chats, send messages, and retrieve conversation history.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/chats": {
+      "post": {
+        "summary": "Create a new chat",
+        "description": "Creates a new chat session with the first message. The name of the chat will be the content of this first message.",
+        "operationId": "createChat",
+        "requestBody": {
+          "description": "The message content to start the chat.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              },
+              "examples": {
+                "example1": {
+                  "summary": "A simple greeting",
+                  "value": {
+                    "content": "Hello, who are you?"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created a new chat and received the bot's response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chat"
+                },
+                "examples": {
+                  "example1": {
+                    "summary": "Example response for a new chat",
+                    "value": {
+                      "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                      "name": "Hello, who are you?",
+                      "created_at": "2023-10-27T10:00:00Z",
+                      "messages": [
+                        {
+                          "role": "user",
+                          "content": "Hello, who are you?",
+                          "timestamp": "2023-10-27T10:00:00Z"
+                        },
+                        {
+                          "role": "bot",
+                          "content": "I am a helpful assistant powered by Gemini.",
+                          "timestamp": "2023-10-27T10:00:01Z"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to send message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chats/{id}": {
+      "get": {
+        "summary": "Get a chat by ID",
+        "description": "Retrieves the full conversation history for a given chat ID.",
+        "operationId": "getChat",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the chat to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the chat.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chat"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a chat by ID",
+        "description": "Deletes a chat and its entire message history.",
+        "operationId": "deleteChat",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the chat to delete.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Chat successfully deleted."
+          },
+          "500": {
+            "description": "Failed to delete chat.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chats/{id}/messages": {
+      "post": {
+        "summary": "Add a message to a chat",
+        "description": "Sends a new message to an existing chat and gets a response from the bot.",
+        "operationId": "addMessageToChat",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the chat to send a message to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The message content.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageRequest"
+              },
+               "examples": {
+                "example1": {
+                  "summary": "A follow-up question",
+                  "value": {
+                    "content": "What can you do?"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully sent message and received a response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chat"
+                }
+              }
+            }
+          },
+           "400": {
+            "description": "Invalid request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found.",
+             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+           "500": {
+            "description": "Failed to send message.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Chat": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier for the chat."
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the chat, taken from the first message."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the chat was created."
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["user", "bot"],
+            "description": "The role of the sender."
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the message."
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the message was sent."
+          }
+        }
+      },
+      "SendMessageRequest": {
+        "type": "object",
+        "required": ["content"],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "The content of the message to be sent."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "A description of the error."
+          }
+        }
+      }
+    }
+  }
+} 
