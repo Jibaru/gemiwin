@@ -30,6 +30,22 @@ export const Layout: React.FC = () => {
       'Consulting the AI',
       'Crunching some data',
       'Summoning wisdom',
+      'Retrieving knowledge',
+      'Brewing some ideas',
+      'Crossing the T\'s',
+      'Dotting the I\'s',
+      'Polishing thoughts',
+      'Exploring the archives',
+      'Chasing insights',
+      'Sifting possibilities',
+      'Aligning the stars',
+      'Decoding patterns',
+      'Sharpening response',
+      'Gathering context',
+      'Drawing conclusions',
+      'Writing words',
+      'Double-checking facts',
+      'Finishing up',
     ];
 
     let msgIndex = 0;
@@ -43,7 +59,7 @@ export const Layout: React.FC = () => {
         msgIndex = (msgIndex + 1) % messages.length;
       }
       setLoadingText(`${messages[msgIndex]}${'.'.repeat(dotCount)}`);
-    }, 500);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [isLoading]);
