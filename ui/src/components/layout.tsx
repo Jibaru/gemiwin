@@ -5,6 +5,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Moon, Sun, Trash2 } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import * as api from '@/services/api';
+import { isMarkdown } from '@/lib/utils';
+import { MarkdownRenderer } from './markdown-renderer';
 
 export const Layout: React.FC = () => {
   const { setTheme, theme } = useTheme();
@@ -110,7 +112,11 @@ export const Layout: React.FC = () => {
           {currentChat?.messages.map((msg, index) => (
             <div key={index} className={`flex mb-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`p-2 rounded-lg ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
-                {msg.content}
+                {msg.role === 'bot' && isMarkdown(msg.content) ? (
+                  <MarkdownRenderer content={msg.content} className="markdown" />
+                ) : (
+                  msg.content
+                )}
               </div>
             </div>
           ))}

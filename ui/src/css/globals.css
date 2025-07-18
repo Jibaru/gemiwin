@@ -64,4 +64,33 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
+}
+
+@layer components {
+  .markdown {
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-bold mt-4 mb-2;
+    }
+    h1 { @apply text-2xl; }
+    h2 { @apply text-xl; }
+    h3 { @apply text-lg; }
+    ul, ol {
+      @apply list-inside list-disc pl-4 mb-2;
+    }
+    ol {
+      @apply list-decimal;
+    }
+    a {
+      @apply text-blue-500 hover:underline;
+    }
+    p {
+      @apply mb-2;
+    }
+    code {
+      @apply bg-gray-200 dark:bg-gray-700 p-1 rounded text-sm;
+    }
+    pre {
+      @apply bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-x-auto;
+    }
+  }
 } 
