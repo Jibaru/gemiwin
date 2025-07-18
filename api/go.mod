@@ -1,11 +1,12 @@
 module gemiwin/api
 
-go 1.22.0
+go 1.24.5
 
 require (
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/google/uuid v1.6.0
+	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 )
 
 require (

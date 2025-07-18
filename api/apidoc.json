@@ -345,6 +345,84 @@
           }
         }
       }
+    },
+    "/chats/{id}/files": {
+      "post": {
+        "summary": "Upload a file to a chat",
+        "description": "Uploads a file which becomes a 'doc' message. If the provided chat ID is empty or invalid, a new chat will be created.",
+        "operationId": "uploadFileToChat",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the chat (use any placeholder such as 'new' to create a chat).",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Binary file to upload.",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat updated with the new document message and bot response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chat"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file upload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chat not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to upload file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -382,14 +460,41 @@
             "enum": ["user", "bot"],
             "description": "The role of the sender."
           },
+          "type": {
+            "type": "string",
+            "enum": ["text", "doc"],
+            "description": "The kind of message: plain text or document reference."
+          },
           "content": {
             "type": "string",
             "description": "The content of the message."
+          },
+          "document": {
+            "$ref": "#/components/schemas/Document",
+            "nullable": true,
+            "description": "Embedded document metadata when type is 'doc'."
           },
           "timestamp": {
             "type": "string",
             "format": "date-time",
             "description": "The timestamp when the message was sent."
+          }
+        }
+      },
+      "Document": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (filename) of the stored document."
+          },
+          "name": {
+            "type": "string",
+            "description": "Original file name uploaded by the user."
+          },
+          "url": {
+            "type": "string",
+            "description": "Public URL to download the stored document."
           }
         }
       },

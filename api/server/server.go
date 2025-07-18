@@ -14,6 +14,9 @@ func New() *gin.Engine {
 
 	r.Use(middlewares.CORSMiddleware())
 
+	// Serve uploaded files statically
+	r.Static("/files", "./data/files")
+
 	chatRepo := persistence.NewChatRepository()
 	botService := services.NewBotService()
 	chatService := services.NewChatService(chatRepo, botService)
@@ -22,6 +25,8 @@ func New() *gin.Engine {
 	r.POST("/chats", handlers.SendMessage(chatService))
 	r.GET("/chats/:id", handlers.GetChat(chatService))
 	r.POST("/chats/:id/messages", handlers.AddMessageToChat(chatService))
+	// File upload endpoint (create or add to existing chat)
+	r.POST("/chats/:id/files", handlers.UploadFileToChat(chatService))
 	r.DELETE("/chats/:id", handlers.DeleteChat(chatService))
 	r.DELETE("/chats/:id/messages/:index", handlers.DeleteMessagesFromChat(chatService))
 
