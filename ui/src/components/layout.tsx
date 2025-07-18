@@ -12,6 +12,7 @@ export const Layout: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('Thinking.');
+  const [selectedModel, setSelectedModel] = useState<api.ModelName>('gemini-2.5-flash');
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -121,13 +122,14 @@ export const Layout: React.FC = () => {
             name: content || file.name,
             created_at: new Date().toISOString(),
             messages: [tempDocMsg],
+            config: { model: selectedModel },
           };
 
           setCurrentChat(tempChat);
           setChats(prev => [...prev, tempChat]);
 
           // Upload file and create new chat
-          const newChat = await api.uploadFileNewChat(file, content);
+          const newChat = await api.uploadFileNewChat(file, content, { model: selectedModel });
           setCurrentChat(newChat);
           setChats(prev => prev.map(c => (c.id === tempChat.id ? newChat : c)));
         }
@@ -161,12 +163,13 @@ export const Layout: React.FC = () => {
                 timestamp: new Date().toISOString(),
               },
             ],
+            config: { model: selectedModel },
           };
 
           setCurrentChat(tempChat);
           setChats(prev => [...prev, tempChat]);
 
-          const newChat = await api.createChat(content);
+          const newChat = await api.createChat(content, { model: selectedModel });
 
           // Replace temporary chat with real chat
           setCurrentChat(newChat);
@@ -177,6 +180,28 @@ export const Layout: React.FC = () => {
       console.error('Failed to send message:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Handle model change from ChatMessages
+  const handleModelChange = async (model: api.ModelName) => {
+    setSelectedModel(model);
+
+    if (currentChat) {
+      // Update UI immediately
+      setCurrentChat(prev => prev ? { ...prev, config: { model } } : prev);
+      setChats(prev => prev.map(c => c.id === currentChat.id ? { ...c, config: { model } } : c));
+
+      // Persist to backend if chat already exists (not temporary)
+      if (!currentChat.id.startsWith('temp-')) {
+        try {
+          const updated = await api.updateChatConfig(currentChat.id, { model });
+          setCurrentChat(updated);
+          setChats(prev => prev.map(c => c.id === updated.id ? updated : c));
+        } catch (err) {
+          console.error('Failed to update chat config', err);
+        }
+      }
     }
   };
 
@@ -196,6 +221,8 @@ export const Layout: React.FC = () => {
           messages={currentChat?.messages ?? []}
           isLoading={isLoading}
           loadingText={loadingText}
+          currentModel={currentChat?.config.model ?? selectedModel}
+          onModelChange={handleModelChange}
           onDeleteMessage={handleDeleteMessage}
         />
         <ChatInput
