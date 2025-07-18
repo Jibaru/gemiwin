@@ -16,24 +16,40 @@ const createWindow = (): void => {
   const winWidth = Math.floor(screenW * 0.8);
   const winHeight = Math.floor(screenH * 0.8);
 
-  // Create the browser window sized at 80% and centered
+  // 1) Splash window – plain color matching React splash gradient start (black)
+  const splash = new BrowserWindow({
+    width: 400,
+    height: 300,
+    frame: false,
+    transparent: false,
+    resizable: false,
+    movable: false,
+    alwaysOnTop: true,
+    show: true,
+    backgroundColor: '#000000',
+  });
+
+  // Load nothing – just a blank window with backgroundColor
+  splash.loadURL('data:text/html,<html><body style="margin:0;background:#000"></body></html>');
+
+  // 2) Main window (hidden initially)
   const mainWindow = new BrowserWindow({
     width: winWidth,
     height: winHeight,
     center: true,
+    show: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },
   });
 
-  // Explicitly center in case the center flag is ignored on some platforms
-  mainWindow.center();
-
-  // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Once ready, show main window and close splash
+  mainWindow.once('ready-to-show', () => {
+    splash.destroy();
+    mainWindow.show();
+  });
 };
 
 // This method will be called when Electron has finished
