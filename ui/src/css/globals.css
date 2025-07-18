@@ -2,6 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom animations */
+@keyframes slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-appear {
+  animation: slide-in 0.3s ease-out forwards;
+}
+
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fade-out 0.2s ease-in forwards;
+}
+
+@keyframes fade-in {
+  from { opacity:0; }
+  to { opacity:1; }
+}
+.animate-fade-in { animation: fade-in 0.25s ease-out forwards; }
+
+@keyframes zoom-in {
+  0% { opacity:0; transform: scale(0.9); }
+  100% { opacity:1; transform: scale(1); }
+}
+.animate-zoom-in { animation: zoom-in 0.25s ease-out forwards; }
+
+/* Custom scrollbar styling for modern browsers */
+
+/* WebKit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: theme('colors.accent.DEFAULT', #4b5563);
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: theme('colors.accent.foreground', #6b7280);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.accent.DEFAULT', #4b5563) transparent;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

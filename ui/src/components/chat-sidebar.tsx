@@ -52,9 +52,14 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   return (
     <>
     <aside className="w-64 flex flex-col border-r border-border">
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border flex items-center justify-between gap-2">
         <h1 className="text-xl font-bold">Gemiwin</h1>
-        <Button variant="outline" size="sm" onClick={onNewChat}>
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-2 border-accent text-accent-foreground hover:bg-accent/30"
+          onClick={onNewChat}
+        >
           New Chat
         </Button>
       </div>
@@ -63,7 +68,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         {chats.map((chat) => (
           <div
             key={chat.id}
-            className={`flex w-full items-center justify-between p-2 cursor-pointer hover:bg-accent/50 ${
+            className={`flex w-full items-center justify-between p-2 cursor-pointer transition transform hover:translate-x-1 hover:bg-accent/60 ${
               currentChat?.id === chat.id ? 'bg-accent' : ''
             }`}
             onClick={() => onSelectChat(chat)}
@@ -107,8 +112,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
 
     {/* Config Modal */}
     {isConfigOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div className="bg-background p-6 rounded-lg shadow-lg w-[90vw] max-w-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fade-in">
+        <div className="bg-background p-6 rounded-lg shadow-lg w-[90vw] max-w-md animate-zoom-in">
           <h2 className="text-lg font-semibold mb-4">Configuration</h2>
           <div className="space-y-4">
             <div>

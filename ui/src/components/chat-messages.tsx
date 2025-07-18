@@ -59,7 +59,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
         </select>
       </div>
       {messages.map((msg, index) => (
-        <div key={index} className={`flex my-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+        <div key={index} className={`flex my-2 message-appear ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
           <div className={`relative p-2 rounded-lg flex flex-col ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
             <div>
               {msg.type === 'doc' && msg.document ? (
