@@ -91,7 +91,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
                   <Copy className="h-4 w-4" />
                 </button>
               )}
-              {onDeleteMessage && msg.role === 'user' && msg.type === 'text' && (
+              {onDeleteMessage && msg.role === 'user' && (
                 <button
                   onClick={() => onDeleteMessage(index)}
                   aria-label="Delete message"
