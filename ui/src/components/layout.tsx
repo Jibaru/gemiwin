@@ -7,6 +7,7 @@ import { useTheme } from '@/components/theme-provider';
 import * as api from '@/services/api';
 import { isMarkdown } from '@/lib/utils';
 import { MarkdownRenderer } from './markdown-renderer';
+import { ChatExporter } from './chat-exporter';
 
 export const Layout: React.FC = () => {
   const { setTheme, theme } = useTheme();
@@ -105,10 +106,11 @@ export const Layout: React.FC = () => {
         </div>
       </aside>
       <main className="flex-1 flex flex-col">
-        <header className="p-4 border-b border-border">
+        <header className="p-4 border-b border-border flex items-center justify-between">
           <h2 className="text-lg font-semibold">{currentChat?.name || 'New Chat'}</h2>
+          {currentChat && <ChatExporter chat={currentChat} />}
         </header>
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div id="chat-container" className="flex-1 p-4 overflow-y-auto">
           {currentChat?.messages.map((msg, index) => (
             <div key={index} className={`flex mb-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`p-2 rounded-lg ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
