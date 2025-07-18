@@ -377,6 +377,10 @@
                   "content": {
                     "type": "string",
                     "description": "User message associated with the file."
+                  },
+                  "config": {
+                    "$ref": "#/components/schemas/ChatConfig",
+                    "description": "Optional chat configuration in JSON format when creating a new chat."
                   }
                 },
                 "required": ["file"]
@@ -448,6 +452,10 @@
                   "content": {
                     "type": "string",
                     "description": "User message associated with the file."
+                  },
+                  "config": {
+                    "$ref": "#/components/schemas/ChatConfig",
+                    "description": "Optional chat configuration in JSON format when creating a new chat."
                   }
                 },
                 "required": ["file"]
@@ -653,6 +661,10 @@
             "items": {
               "$ref": "#/components/schemas/Message"
             }
+          },
+          "config": {
+            "$ref": "#/components/schemas/ChatConfig",
+            "description": "Per-chat configuration such as the selected LLM model."
           }
         }
       },
@@ -723,6 +735,11 @@
           "content": {
             "type": "string",
             "description": "The content of the message to be sent."
+          },
+          "config": {
+            "$ref": "#/components/schemas/ChatConfig",
+            "nullable": true,
+            "description": "Optional chat configuration to apply when creating a new chat."
           }
         }
       },

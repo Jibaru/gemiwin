@@ -3,13 +3,15 @@ package handlers
 import (
 	"net/http"
 
+	"gemiwin/api/internal/domain"
 	"gemiwin/api/internal/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type SendMessageRequest struct {
-	Content string `json:"content"`
+	Content string             `json:"content"`
+	Config  *domain.ChatConfig `json:"config,omitempty"`
 }
 
 func SendMessage(service *services.ChatService) gin.HandlerFunc {
@@ -21,7 +23,7 @@ func SendMessage(service *services.ChatService) gin.HandlerFunc {
 			return
 		}
 
-		chat, err := service.AddMessageToChat("", req.Content)
+		chat, err := service.AddMessageToChat("", req.Content, req.Config)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send message"})
 			return

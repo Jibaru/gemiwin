@@ -31,16 +31,21 @@ func (s *ChatService) GetChatByID(id string) (*domain.Chat, error) {
 	return s.repo.FindByID(id)
 }
 
-func (s *ChatService) AddMessageToChat(id string, content string) (*domain.Chat, error) {
+func (s *ChatService) AddMessageToChat(id string, content string, cfg *domain.ChatConfig) (*domain.Chat, error) {
 	var chat *domain.Chat
 	var err error
 
 	if id == "" {
+		// Determine initial configuration
+		initialCfg := domain.ChatConfig{Model: domain.DefaultModel}
+		if cfg != nil && cfg.Model != "" {
+			initialCfg = *cfg
+		}
 		chat = &domain.Chat{
 			ID:        uuid.New().String(),
 			Name:      content,
 			CreatedAt: time.Now(),
-			Config:    domain.ChatConfig{Model: domain.DefaultModel},
+			Config:    initialCfg,
 			Messages:  []domain.Message{},
 		}
 		if err := s.repo.Create(chat); err != nil {
@@ -90,14 +95,14 @@ func (s *ChatService) AddMessageToChat(id string, content string) (*domain.Chat,
 }
 
 // AddFileToChat adds a file as a message. If id is empty, a new chat is created.
-func (s *ChatService) AddFileToChat(id string, userContent string, fileName string, fileBytes []byte) (*domain.Chat, string, error) {
+func (s *ChatService) AddFileToChat(id string, userContent string, fileName string, fileBytes []byte, cfg *domain.ChatConfig) (*domain.Chat, string, error) {
 	// Step 1: get or create chat
 	defaultName := userContent
 	if defaultName == "" {
 		defaultName = fileName
 	}
 
-	chat, err := s.getOrCreateChat(id, defaultName)
+	chat, err := s.getOrCreateChat(id, defaultName, cfg)
 	if err != nil || chat == nil {
 		return chat, "", err
 	}
@@ -152,15 +157,19 @@ func (s *ChatService) AddFileToChat(id string, userContent string, fileName stri
 }
 
 // getOrCreateChat returns the existing chat or creates a new one when id is empty.
-func (s *ChatService) getOrCreateChat(id string, defaultName string) (*domain.Chat, error) {
+func (s *ChatService) getOrCreateChat(id string, defaultName string, cfg *domain.ChatConfig) (*domain.Chat, error) {
 	var chat *domain.Chat
 
 	if id == "" {
+		initialCfg := domain.ChatConfig{Model: domain.DefaultModel}
+		if cfg != nil && cfg.Model != "" {
+			initialCfg = *cfg
+		}
 		chat = &domain.Chat{
 			ID:        uuid.New().String(),
 			Name:      defaultName,
 			CreatedAt: time.Now(),
-			Config:    domain.ChatConfig{Model: domain.DefaultModel},
+			Config:    initialCfg,
 			Messages:  []domain.Message{},
 		}
 		if err := s.repo.Create(chat); err != nil {

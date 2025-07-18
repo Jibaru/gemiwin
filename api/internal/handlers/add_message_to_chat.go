@@ -18,7 +18,7 @@ func AddMessageToChat(service *services.ChatService) gin.HandlerFunc {
 			return
 		}
 
-		chat, err := service.AddMessageToChat(chatID, req.Content)
+		chat, err := service.AddMessageToChat(chatID, req.Content, nil)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send message"})
 			return
