@@ -423,6 +423,63 @@
           }
         }
       }
+    },
+    "/chats/files": {
+      "post": {
+        "summary": "Create a new chat with an uploaded file",
+        "description": "Uploads a file as the first message in a new chat session. Returns the created chat with the bot's response.",
+        "operationId": "createChatWithFile",
+        "requestBody": {
+          "description": "Binary file to upload.",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat created with the uploaded document and bot response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Chat"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file upload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to upload file.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
