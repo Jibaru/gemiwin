@@ -13,6 +13,36 @@
   ],
   "paths": {
     "/chats": {
+      "get": {
+        "summary": "List all chats",
+        "description": "Retrieves a list of all chat sessions.",
+        "operationId": "listChats",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the list of chats.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Chat"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to list chats.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "Create a new chat",
         "description": "Creates a new chat session with the first message. The name of the chat will be the content of this first message.",

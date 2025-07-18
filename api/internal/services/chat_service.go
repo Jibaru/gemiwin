@@ -81,3 +81,7 @@ func (s *ChatService) AddMessageToChat(id string, content string) (*domain.Chat,
 func (s *ChatService) DeleteChatByID(id string) error {
 	return s.repo.Delete(id)
 }
+
+func (s *ChatService) ListChats() ([]*domain.Chat, error) {
+	return s.repo.FindAll()
+}

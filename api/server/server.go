@@ -18,6 +18,7 @@ func New() *gin.Engine {
 	botService := services.NewBotService()
 	chatService := services.NewChatService(chatRepo, botService)
 
+	r.GET("/chats", handlers.ListChats(chatService))
 	r.POST("/chats", handlers.SendMessage(chatService))
 	r.GET("/chats/:id", handlers.GetChat(chatService))
 	r.POST("/chats/:id/messages", handlers.AddMessageToChat(chatService))

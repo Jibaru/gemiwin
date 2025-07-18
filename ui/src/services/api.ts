@@ -27,6 +27,14 @@ export const createChat = async (content: string): Promise<Chat> => {
   return response.json();
 };
 
+export const listChats = async (): Promise<Chat[]> => {
+  const response = await fetch(`${API_URL}/chats`);
+  if (!response.ok) {
+    throw new Error('Failed to list chats');
+  }
+  return response.json();
+};
+
 export const getChat = async (id: string): Promise<Chat> => {
   const response = await fetch(`${API_URL}/chats/${id}`);
   if (!response.ok) {

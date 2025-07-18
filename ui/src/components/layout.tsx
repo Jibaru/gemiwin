@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Trash2 } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import * as api from '@/services/api';
 
@@ -11,20 +11,50 @@ export const Layout: React.FC = () => {
   const [chats, setChats] = useState<api.Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<api.Chat | null>(null);
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchChats = async () => {
+      const allChats = await api.listChats();
+      setChats(allChats);
+    };
+    fetchChats();
+  }, []);
+
+  const handleDeleteChat = async (chatId: string) => {
+    await api.deleteChat(chatId);
+    setChats(chats.filter((chat) => chat.id !== chatId));
+    if (currentChat?.id === chatId) {
+      setCurrentChat(null);
+    }
+  };
 
   const handleSendMessage = async () => {
-    if (!message.trim()) return;
+    if (!message.trim() || isLoading) return;
 
-    if (currentChat) {
-      const updatedChat = await api.addMessageToChat(currentChat.id, message);
-      setCurrentChat(updatedChat);
-      setChats(chats.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat)));
-    } else {
-      const newChat = await api.createChat(message);
-      setCurrentChat(newChat);
-      setChats([...chats, newChat]);
-    }
+    const userMessageContent = message;
     setMessage('');
+    setIsLoading(true);
+
+    try {
+      if (currentChat) {
+        const newUserMessage = { role: 'user' as const, content: userMessageContent, timestamp: new Date().toISOString() };
+        setCurrentChat(prev => ({ ...prev!, messages: [...prev!.messages, newUserMessage] }));
+        
+        const updatedChat = await api.addMessageToChat(currentChat.id, userMessageContent);
+        setCurrentChat(updatedChat);
+        setChats(chats.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat)));
+      } else {
+        const newChat = await api.createChat(userMessageContent);
+        setCurrentChat(newChat);
+        setChats(prevChats => [...prevChats, newChat]);
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      // Here you could add logic to show an error to the user
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,12 +70,23 @@ export const Layout: React.FC = () => {
           {chats.map((chat) => (
             <div
               key={chat.id}
-              className={`p-2 cursor-pointer ${
+              className={`flex items-center justify-between p-2 cursor-pointer hover:bg-accent/50 ${
                 currentChat?.id === chat.id ? 'bg-accent' : ''
               }`}
               onClick={() => setCurrentChat(chat)}
             >
-              {chat.name}
+              <span className="truncate flex-1">{chat.name}</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteChat(chat.id);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           ))}
         </ScrollArea>
@@ -63,16 +104,23 @@ export const Layout: React.FC = () => {
       </aside>
       <main className="flex-1 flex flex-col">
         <header className="p-4 border-b border-border">
-          <h2 className="text-lg font-semibold">{currentChat?.name || 'Chat'}</h2>
+          <h2 className="text-lg font-semibold">{currentChat?.name || 'New Chat'}</h2>
         </header>
         <div className="flex-1 p-4 overflow-y-auto">
           {currentChat?.messages.map((msg, index) => (
-            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div key={index} className={`flex mb-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`p-2 rounded-lg ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
                 {msg.content}
               </div>
             </div>
           ))}
+          {isLoading && (
+            <div className="flex mb-2 justify-start">
+              <div className="p-2 rounded-lg bg-secondary">
+                Thinking...
+              </div>
+            </div>
+          )}
         </div>
         <footer className="p-4 border-t border-border">
           <div className="flex space-x-2">
@@ -81,8 +129,9 @@ export const Layout: React.FC = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              disabled={isLoading}
             />
-            <Button onClick={handleSendMessage}>Send</Button>
+            <Button onClick={handleSendMessage} disabled={isLoading}>Send</Button>
           </div>
         </footer>
       </main>

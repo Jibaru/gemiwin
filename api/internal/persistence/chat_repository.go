@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gemiwin/api/internal/domain"
 )
@@ -45,6 +46,28 @@ func (r *ChatRepository) Update(chat *domain.Chat) error {
 func (r *ChatRepository) Delete(id string) error {
 	filePath := filepath.Join(dataDir, id+".json")
 	return os.Remove(filePath)
+}
+
+func (r *ChatRepository) FindAll() ([]*domain.Chat, error) {
+	files, err := ioutil.ReadDir(dataDir)
+	if err != nil {
+		return nil, err
+	}
+
+	var chats []*domain.Chat
+	for _, file := range files {
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".json" {
+			chat, err := r.FindByID(strings.TrimSuffix(file.Name(), ".json"))
+			if err != nil {
+				// Decide if you want to skip faulty files or return an error
+				continue
+			}
+			if chat != nil {
+				chats = append(chats, chat)
+			}
+		}
+	}
+	return chats, nil
 }
 
 func (r *ChatRepository) save(chat *domain.Chat) error {
