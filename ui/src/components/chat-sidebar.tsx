@@ -30,16 +30,17 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
           New Chat
         </Button>
       </div>
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 w-full">
+        <style>{`[data-radix-scroll-area-viewport] > div { display:block !important; }`}</style>
         {chats.map((chat) => (
           <div
             key={chat.id}
-            className={`flex items-center justify-between p-2 cursor-pointer hover:bg-accent/50 ${
+            className={`flex w-full items-center justify-between p-2 cursor-pointer hover:bg-accent/50 ${
               currentChat?.id === chat.id ? 'bg-accent' : ''
             }`}
             onClick={() => onSelectChat(chat)}
           >
-            <span className="truncate flex-1">{chat.name}</span>
+            <span className="flex-1 truncate overflow-hidden">{chat.name}</span>
             <Button
               variant="ghost"
               size="icon"
