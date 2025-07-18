@@ -21,6 +21,10 @@ func New() *gin.Engine {
 	botService := services.NewBotService()
 	chatService := services.NewChatService(chatRepo, botService)
 
+	// Initialize AppConfig dependencies
+	appConfigRepo := persistence.NewAppConfigRepository()
+	appConfigService := services.NewAppConfigService(appConfigRepo)
+
 	r.GET("/chats", handlers.ListChats(chatService))
 	r.POST("/chats", handlers.SendMessage(chatService))
 	r.GET("/chats/:id", handlers.GetChat(chatService))
@@ -29,6 +33,8 @@ func New() *gin.Engine {
 	r.POST("/chats/:id/files", handlers.UploadFileToChat(chatService))
 	r.DELETE("/chats/:id", handlers.DeleteChat(chatService))
 	r.DELETE("/chats/:id/messages/:index", handlers.DeleteMessagesFromChat(chatService))
+	r.GET("/config", handlers.GetAppConfig(appConfigService))
+	r.PUT("/config", handlers.UpdateAppConfig(appConfigService))
 
 	return r
 }

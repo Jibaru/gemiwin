@@ -488,6 +488,83 @@
           }
         }
       }
+    },
+    "/config": {
+      "get": {
+        "summary": "Get global configuration",
+        "description": "Retrieves the current application configuration.",
+        "operationId": "getAppConfig",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppConfig"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to load configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update global configuration",
+        "description": "Creates or updates the global application configuration.",
+        "operationId": "updateAppConfig",
+        "requestBody": {
+          "description": "Configuration data to update.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Configuration successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppConfig"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to update configuration.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -565,6 +642,15 @@
             "type": "string",
             "description": "Extracted textual content of the document (if available).",
             "nullable": true
+          }
+        }
+      },
+      "AppConfig": {
+        "type": "object",
+        "properties": {
+          "gemini_api_key": {
+            "type": "string",
+            "description": "API key used to communicate with Gemini."
           }
         }
       },
