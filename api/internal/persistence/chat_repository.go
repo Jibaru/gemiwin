@@ -10,11 +10,13 @@ import (
 	"gemiwin/api/internal/domain"
 )
 
-const dataDir = "data"
+const dataDir = "data/chats"
 
 type ChatRepository struct{}
 
 func NewChatRepository() *ChatRepository {
+	// Ensure chat directory exists to avoid errors when reading or writing files.
+	_ = os.MkdirAll(dataDir, 0755)
 	return &ChatRepository{}
 }
 
