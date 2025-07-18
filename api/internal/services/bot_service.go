@@ -17,8 +17,10 @@ func NewBotService() *BotService {
 
 func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
 	var conversation strings.Builder
+	conversation.WriteString("You are a bot, and I am a user. This is a conversation context and you have to answer. Conversation: ")
+
 	for _, msg := range chat.Messages {
-		conversation.WriteString(fmt.Sprintf("%s: %s\n", msg.Role, msg.Content))
+		conversation.WriteString(fmt.Sprintf("%s: %s; ", msg.Role, msg.Content))
 	}
 
 	prompt := conversation.String()
