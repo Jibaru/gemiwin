@@ -43,6 +43,7 @@ const createWindow = (): void => {
     },
   });
 
+  mainWindow.setMenu(null);
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Once ready, show main window and close splash
