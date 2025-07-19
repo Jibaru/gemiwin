@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Trash2, Moon, Sun, Settings } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
 import * as api from '@/services/api';
+import icon from '../../icon.png';
 
 interface ChatSidebarProps {
   chats: api.Chat[];
@@ -53,7 +54,10 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
     <>
     <aside className="w-64 flex flex-col border-r border-border">
       <div className="p-4 border-b border-border flex items-center justify-between gap-2">
-        <h1 className="text-xl font-bold">Gemiwin</h1>
+        <div className="flex items-center gap-2">
+          <img src={icon} alt="logo" className="h-6 w-6" />
+          <h1 className="text-xl font-bold">Gemiwin</h1>
+        </div>
         <Button
           variant="outline"
           size="sm"

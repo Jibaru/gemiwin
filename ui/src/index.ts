@@ -84,6 +84,7 @@ const createWindow = (): void => {
     height: winHeight,
     center: true,
     show: false,
+    icon: path.join(__dirname, '../../icon.png'),
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
     },

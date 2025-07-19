@@ -1,4 +1,5 @@
 import React from 'react';
+import icon from '../../icon.png';
 
 interface SplashScreenProps {
   onContinue: () => void;
@@ -11,8 +12,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onContinue }) => {
         <span className="px-3 py-1 text-xs rounded-full bg-neutral-800 border border-neutral-700 mb-4">
           Built for Gemini
         </span>
-        <h1 className="text-5xl font-bold tracking-wider mb-2">gemiwin</h1>
-        <p className="uppercase tracking-widest text-sm text-neutral-400">your ai-native personal assistant</p>
+        <h1 className="text-5xl font-bold tracking-wider mb-3">gemiwin</h1>
+        <p className="uppercase tracking-widest text-sm text-neutral-400">gemini-cli desktop app</p>
       </div>
 
       {/* Vintage keycap style */}
@@ -28,8 +29,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onContinue }) => {
           <div className="absolute inset-0 h-40 w-40 rounded-2xl bg-gray-200 translate-y-3 group-active:translate-y-1 transition-transform" />
 
           {/* Keycap */}
-          <div className="relative h-40 w-40 rounded-2xl bg-white shadow-md flex items-center justify-center text-7xl font-black text-black select-none group-active:translate-y-1 transition-transform">
-            g
+          <div className="relative h-40 w-40 rounded-2xl bg-white shadow-md flex items-center justify-center select-none group-active:translate-y-1 transition-transform">
+            <img src={icon} alt="logo" className="h-20 w-20" />
           </div>
         </div>
       </div>
