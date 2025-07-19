@@ -1,4 +1,4 @@
-import { contextBridge, shell } from 'electron';
+import { contextBridge, shell, ipcRenderer } from 'electron';
 
 // Expose a minimal API to the renderer for opening external links
 contextBridge.exposeInMainWorld('electronAPI', {

@@ -43,6 +43,21 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
     }
   };
 
+  // Handle opening or downloading documents
+  const handleDocumentClick = (doc: api.Document) => {
+    const url = `${api.API_URL}${doc.url}`;
+    const isPDF = /\.pdf$/i.test(doc.name);
+
+    if (isPDF) {
+      const viewer = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(
+        url,
+      )}`;
+      window.open(viewer, '_blank', 'noopener,noreferrer');
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div id="chat-container" className="flex-1 p-4 overflow-y-auto">
       {/* Model selector */}
@@ -67,15 +82,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
                   {msg.document.url ? (
                     <button
                       type="button"
-                      onClick={() => {
-                        const url = `${api.API_URL}${msg.document.url}`;
-                        // Prefer opening via the main process in Electron so that PDFs render correctly
-                        if (window?.electronAPI?.openExternal) {
-                          window.electronAPI.openExternal(url);
-                        } else {
-                          window.open(url, '_blank', 'noopener,noreferrer');
-                        }
-                      }}
+                      onClick={() => handleDocumentClick(msg.document!)}
                       className="flex items-center gap-2 hover:underline text-left"
                     >
                       <FileText className="w-4 h-4" />
