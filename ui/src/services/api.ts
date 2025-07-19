@@ -1,5 +1,18 @@
 export const API_URL = 'http://localhost:8080';
 
+// Extract error message returned by API if present { error: string }
+const getApiError = async (response: Response, fallback: string): Promise<string> => {
+  try {
+    const data = await response.clone().json();
+    if (data && typeof data.error === 'string') {
+      return data.error;
+    }
+  } catch (_) {
+    // Ignore JSON parse errors or unexpected shapes
+  }
+  return fallback;
+};
+
 // Document metadata for messages of type 'doc'
 export interface Document {
   id: string;
@@ -53,7 +66,7 @@ export const createChat = async (
     signal,
   });
   if (!response.ok) {
-    throw new Error('Failed to create chat');
+    throw new Error(await getApiError(response, 'Failed to create chat'));
   }
   return response.json();
 };
@@ -61,7 +74,7 @@ export const createChat = async (
 export const listChats = async (): Promise<Chat[]> => {
   const response = await fetch(`${API_URL}/chats`);
   if (!response.ok) {
-    throw new Error('Failed to list chats');
+    throw new Error(await getApiError(response, 'Failed to list chats'));
   }
   return response.json();
 };
@@ -69,7 +82,7 @@ export const listChats = async (): Promise<Chat[]> => {
 export const getChat = async (id: string): Promise<Chat> => {
   const response = await fetch(`${API_URL}/chats/${id}`);
   if (!response.ok) {
-    throw new Error('Failed to get chat');
+    throw new Error(await getApiError(response, 'Failed to get chat'));
   }
   return response.json();
 };
@@ -88,7 +101,7 @@ export const addMessageToChat = async (
     signal,
   });
   if (!response.ok) {
-    throw new Error('Failed to add message to chat');
+    throw new Error(await getApiError(response, 'Failed to add message to chat'));
   }
   return response.json();
 };
@@ -98,7 +111,7 @@ export const deleteChat = async (id: string): Promise<void> => {
     method: 'DELETE',
   });
   if (!response.ok) {
-    throw new Error('Failed to delete chat');
+    throw new Error(await getApiError(response, 'Failed to delete chat'));
   }
 };
 
@@ -107,7 +120,7 @@ export const deleteMessagesFromChat = async (id: string, index: number): Promise
     method: 'DELETE',
   });
   if (!response.ok) {
-    throw new Error('Failed to delete messages');
+    throw new Error(await getApiError(response, 'Failed to delete messages'));
   }
   return response.json();
 };
@@ -129,7 +142,7 @@ export const uploadFileToChat = async (
     signal,
   });
   if (!response.ok) {
-    throw new Error('Failed to upload file');
+    throw new Error(await getApiError(response, 'Failed to upload file'));
   }
   return response.json();
 };
@@ -155,7 +168,7 @@ export const uploadFileNewChat = async (
     signal,
   });
   if (!response.ok) {
-    throw new Error('Failed to upload file and create chat');
+    throw new Error(await getApiError(response, 'Failed to upload file and create chat'));
   }
   return response.json();
 };
@@ -173,7 +186,7 @@ export const updateChatConfig = async (
     body: JSON.stringify(config),
   });
   if (!response.ok) {
-    throw new Error('Failed to update chat configuration');
+    throw new Error(await getApiError(response, 'Failed to update chat configuration'));
   }
   return response.json();
 };
@@ -182,7 +195,7 @@ export const updateChatConfig = async (
 export const getAppConfig = async (): Promise<AppConfig> => {
   const response = await fetch(`${API_URL}/config`);
   if (!response.ok) {
-    throw new Error('Failed to load configuration');
+    throw new Error(await getApiError(response, 'Failed to load configuration'));
   }
   return response.json();
 };
@@ -197,7 +210,7 @@ export const updateAppConfig = async (config: AppConfig): Promise<AppConfig> => 
     body: JSON.stringify(config),
   });
   if (!response.ok) {
-    throw new Error('Failed to update configuration');
+    throw new Error(await getApiError(response, 'Failed to update configuration'));
   }
   return response.json();
 }; 
