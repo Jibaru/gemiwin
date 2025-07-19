@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-// UI imports are now handled by child components
 import * as api from '@/services/api';
 import { ChatSidebar } from './chat-sidebar';
 import { ChatHeader } from './chat-header';
 import { ChatMessages } from './chat-messages';
 import { ChatInput } from './chat-input';
+import toast from 'react-hot-toast';
 
 export const Layout: React.FC = () => {
   const [chats, setChats] = useState<api.Chat[]>([]);
@@ -17,8 +17,13 @@ export const Layout: React.FC = () => {
 
   useEffect(() => {
     const fetchChats = async () => {
-      const allChats = await api.listChats();
-      setChats(allChats);
+      try {
+        const allChats = await api.listChats();
+        setChats(allChats);
+      } catch (error) {
+        console.error('Failed to list chats', error);
+        toast.error(`Failed to load chats: ${(error instanceof Error ? error.message : String(error))}`);
+      }
     };
     fetchChats();
   }, []);
@@ -67,10 +72,15 @@ export const Layout: React.FC = () => {
   }, [isLoading]);
 
   const handleDeleteChat = async (chatId: string) => {
-    await api.deleteChat(chatId);
-    setChats(chats.filter((chat) => chat.id !== chatId));
-    if (currentChat?.id === chatId) {
-      setCurrentChat(null);
+    try {
+      await api.deleteChat(chatId);
+      setChats(chats.filter((chat) => chat.id !== chatId));
+      if (currentChat?.id === chatId) {
+        setCurrentChat(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete chat', error);
+      toast.error(`Failed to delete chat: ${(error instanceof Error ? error.message : String(error))}`);
     }
   };
 
@@ -83,6 +93,7 @@ export const Layout: React.FC = () => {
       setChats(prev => prev.map(chat => (chat.id === refreshedChat.id ? refreshedChat : chat)));
     } catch (error) {
       console.error('Failed to delete message:', error);
+      toast.error(`Failed to delete message: ${(error instanceof Error ? error.message : String(error))}`);
     }
   };
 
@@ -261,6 +272,7 @@ export const Layout: React.FC = () => {
         console.log('Request cancelled');
       } else {
         console.error('Failed to send message:', error);
+        toast.error(`Failed to send message: ${(error instanceof Error ? error.message : String(error))}`);
       }
     } finally {
       setIsLoading(false);
@@ -286,6 +298,7 @@ export const Layout: React.FC = () => {
           setChats(prev => prev.map(c => c.id === updated.id ? updated : c));
         } catch (err) {
           console.error('Failed to update chat config', err);
+          toast.error(`Failed to update chat config: ${(err instanceof Error ? err.message : String(err))}`);
         }
       }
     }

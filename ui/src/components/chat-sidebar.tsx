@@ -4,6 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { Trash2, Moon, Sun, Settings } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
+import toast from 'react-hot-toast';
 import * as api from '@/services/api';
 import icon from '../../icon.png';
 
@@ -34,6 +35,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       setConfig(cfg);
     } catch (error) {
       console.error('Failed to load config', error);
+      toast.error(`Failed to load configuration: ${(error instanceof Error ? error.message : String(error))}`);
     }
     setIsConfigOpen(true);
   };
@@ -45,6 +47,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       setIsConfigOpen(false);
     } catch (error) {
       console.error('Failed to save config', error);
+      toast.error(`Failed to save configuration: ${(error instanceof Error ? error.message : String(error))}`);
     } finally {
       setIsSaving(false);
     }
