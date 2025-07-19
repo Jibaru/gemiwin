@@ -53,10 +53,10 @@ func (r *ChatRepository) Delete(id string) error {
 func (r *ChatRepository) FindAll() ([]*domain.Chat, error) {
 	files, err := ioutil.ReadDir(dataDir)
 	if err != nil {
-		return nil, err
+		return make([]*domain.Chat, 0), err
 	}
 
-	var chats []*domain.Chat
+	chats := make([]*domain.Chat, 0)
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".json" {
 			chat, err := r.FindByID(strings.TrimSuffix(file.Name(), ".json"))
