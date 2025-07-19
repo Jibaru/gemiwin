@@ -3,7 +3,7 @@
   <h1 align="center">gemiwin</h1>
 </p>
 
-A **desktop chat application** that lets you converse with **Google Gemini** models — 100 % **locally**. Built with **Go, Electron, React, TypeScript & Tailwind CSS**.
+A **desktop chat application** that lets you converse with **Google Gemini** models using **gemini-cli** — 100 % **locally**. Built with **Go, Electron, React, TypeScript & Tailwind CSS**.
 
 ---
 
@@ -30,13 +30,13 @@ A **desktop chat application** that lets you converse with **Google Gemini** mod
 ```mermaid
 graph TD
     subgraph Desktop
-        A[Electron + React UI]
+        UI["Electron + React UI"]
     end
-    A -->|HTTP (REST)| B[(Go API server)]
-    B --> C[Gemini CLI]
-    B --> D[(Local filesystem)]
-    C -->|Model response| B
-    D -. stores .-> B
+    UI -->|HTTP| API["Go API server"]
+    API --> CLI["Gemini CLI"]
+    API --> FS[("Local filesystem")]
+    CLI --> API
+    FS -.-> API
 ```
 
 1. **Electron UI** renders the app and calls the local HTTP API.
