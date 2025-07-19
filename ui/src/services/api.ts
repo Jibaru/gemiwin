@@ -36,7 +36,11 @@ export interface AppConfig {
   gemini_api_key: string;
 }
 
-export const createChat = async (content: string, config?: ChatConfig): Promise<Chat> => {
+export const createChat = async (
+  content: string,
+  config?: ChatConfig,
+  signal?: AbortSignal,
+): Promise<Chat> => {
   const body: Record<string, any> = { content };
   if (config) body.config = config;
 
@@ -46,6 +50,7 @@ export const createChat = async (content: string, config?: ChatConfig): Promise<
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
+    signal,
   });
   if (!response.ok) {
     throw new Error('Failed to create chat');
@@ -69,13 +74,18 @@ export const getChat = async (id: string): Promise<Chat> => {
   return response.json();
 };
 
-export const addMessageToChat = async (id: string, content: string): Promise<Chat> => {
+export const addMessageToChat = async (
+  id: string,
+  content: string,
+  signal?: AbortSignal,
+): Promise<Chat> => {
   const response = await fetch(`${API_URL}/chats/${id}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ content }),
+    signal,
   });
   if (!response.ok) {
     throw new Error('Failed to add message to chat');
@@ -107,6 +117,7 @@ export const uploadFileToChat = async (
   id: string,
   file: File,
   content: string,
+  signal?: AbortSignal,
 ): Promise<Chat> => {
   const formData = new FormData();
   formData.append('file', file);
@@ -115,6 +126,7 @@ export const uploadFileToChat = async (
   const response = await fetch(`${API_URL}/chats/${id}/files`, {
     method: 'POST',
     body: formData,
+    signal,
   });
   if (!response.ok) {
     throw new Error('Failed to upload file');
@@ -123,7 +135,12 @@ export const uploadFileToChat = async (
 };
 
 // Upload a file and create a new chat when no ID exists.
-export const uploadFileNewChat = async (file: File, content: string, config?: ChatConfig): Promise<Chat> => {
+export const uploadFileNewChat = async (
+  file: File,
+  content: string,
+  config?: ChatConfig,
+  signal?: AbortSignal,
+): Promise<Chat> => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('content', content);
@@ -135,6 +152,7 @@ export const uploadFileNewChat = async (file: File, content: string, config?: Ch
   const response = await fetch(`${API_URL}/chats/files`, {
     method: 'POST',
     body: formData,
+    signal,
   });
   if (!response.ok) {
     throw new Error('Failed to upload file and create chat');

@@ -2,7 +2,7 @@ import React from 'react';
 import { isMarkdown } from '@/lib/utils';
 import { MarkdownRenderer } from './markdown-renderer';
 import * as api from '@/services/api';
-import { Copy, Trash2, FileText } from 'lucide-react';
+import { Copy, Trash2, FileText, X } from 'lucide-react';
 import type { ModelName } from '@/services/api';
 import toast from 'react-hot-toast';
 
@@ -21,9 +21,10 @@ interface ChatMessagesProps {
   currentModel: ModelName;
   onModelChange: (model: ModelName) => void;
   onDeleteMessage?: (index: number) => void;
+  onCancel?: () => void;
 }
 
-export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, loadingText, currentModel, onModelChange, onDeleteMessage }) => {
+export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading, loadingText, currentModel, onModelChange, onDeleteMessage, onCancel }) => {
   const handleCopy = (text: string) => {
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(text).then(() => toast('Copied')).catch(() => {});
@@ -128,10 +129,19 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
         </div>
       ))}
       {isLoading && (
-        <div className="flex mb-2 justify-start">
+        <div className="flex mb-2 justify-start items-center gap-2">
           <div className="p-2 rounded-lg bg-secondary">
             {loadingText}
           </div>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              aria-label="Cancel request"
+              className="opacity-60 hover:opacity-100"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // UI imports are now handled by child components
 import * as api from '@/services/api';
 import { ChatSidebar } from './chat-sidebar';
@@ -12,6 +12,7 @@ export const Layout: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingText, setLoadingText] = useState('Thinking.');
+  const [loadingChatId, setLoadingChatId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<api.ModelName>('gemini-2.5-flash');
 
   useEffect(() => {
@@ -85,6 +86,63 @@ export const Layout: React.FC = () => {
     }
   };
 
+  // Ref to manage request cancellation
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Track the optimistic user message so we can undo it on cancel
+  const pendingRef = useRef<{
+    chatId: string | null;
+    message: string;
+    type: 'text' | 'doc';
+    createdTempChat: boolean;
+  } | null>(null);
+
+  const handleCancelRequest = () => {
+    if (isLoading) {
+      abortRef.current?.abort();
+      abortRef.current = null;
+      setIsLoading(false);
+      setLoadingChatId(null);
+
+      const pending = pendingRef.current;
+      if (pending) {
+        // Restore input message so user can edit/resend
+        setMessage(pending.message);
+
+        if (pending.createdTempChat) {
+          // Remove temporary chat entirely
+          setChats(prev => prev.filter(c => c.id !== currentChat?.id));
+          if (currentChat?.id === pending.chatId) {
+            setCurrentChat(null);
+          }
+        } else {
+          // Remove last optimistic message from existing chat
+          if (currentChat) {
+            setCurrentChat(prev => {
+              if (!prev) return prev;
+              const msgs = [...prev.messages];
+              if (msgs.length && msgs[msgs.length - 1].role === 'user') {
+                msgs.pop();
+              }
+              return { ...prev, messages: msgs };
+            });
+
+            setChats(prev => prev.map(c => {
+              if (c.id !== currentChat!.id) return c;
+              const msgs = [...c.messages];
+              if (msgs.length && msgs[msgs.length - 1].role === 'user') {
+                msgs.pop();
+              }
+              return { ...c, messages: msgs };
+            }));
+          }
+        }
+
+        pendingRef.current = null;
+      }
+    }
+  };
+
   const handleSendMessage = async (content: string, file: File | null) => {
     if (isLoading) return;
 
@@ -95,6 +153,22 @@ export const Layout: React.FC = () => {
 
     setMessage('');
     setIsLoading(true);
+    // Track which chat is currently loading
+    if (currentChat) {
+      setLoadingChatId(currentChat.id);
+    }
+
+    // Create new AbortController for this request
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    // Store info about the pending optimistic message
+    pendingRef.current = {
+      chatId: currentChat?.id ?? null,
+      message: content,
+      type: file ? 'doc' : 'text',
+      createdTempChat: !currentChat,
+    };
 
     try {
       // If a file is being uploaded, a message is mandatory
@@ -112,7 +186,7 @@ export const Layout: React.FC = () => {
           setCurrentChat(prev => ({ ...prev!, messages: [...prev!.messages, tempDocMsg] }));
           setChats(prev => prev.map(c => (c.id === currentChat.id ? { ...c, messages: [...c.messages, tempDocMsg] } : c)));
 
-          const updatedChat = await api.uploadFileToChat(currentChat.id, file, content);
+          const updatedChat = await api.uploadFileToChat(currentChat.id, file, content, controller.signal);
           setCurrentChat(updatedChat);
           setChats(prev => prev.map(c => (c.id === updatedChat.id ? updatedChat : c)));
         } else {
@@ -127,11 +201,14 @@ export const Layout: React.FC = () => {
 
           setCurrentChat(tempChat);
           setChats(prev => [...prev, tempChat]);
+          // Associate loading with this temporary chat
+          setLoadingChatId(tempChat.id);
 
           // Upload file and create new chat
-          const newChat = await api.uploadFileNewChat(file, content, { model: selectedModel });
+          const newChat = await api.uploadFileNewChat(file, content, { model: selectedModel }, controller.signal);
           setCurrentChat(newChat);
           setChats(prev => prev.map(c => (c.id === tempChat.id ? newChat : c)));
+          setLoadingChatId(newChat.id);
         }
       } else if (content.trim()) {
         // Text-only flow (no file)
@@ -145,7 +222,7 @@ export const Layout: React.FC = () => {
           };
           setCurrentChat(prev => ({ ...prev!, messages: [...prev!.messages, newUserMessage] }));
 
-          const updatedChat = await api.addMessageToChat(currentChat.id, content);
+          const updatedChat = await api.addMessageToChat(currentChat.id, content, controller.signal);
           setCurrentChat(updatedChat);
           setChats(prev => prev.map(c => (c.id === updatedChat.id ? updatedChat : c)));
         } else {
@@ -169,17 +246,26 @@ export const Layout: React.FC = () => {
           setCurrentChat(tempChat);
           setChats(prev => [...prev, tempChat]);
 
-          const newChat = await api.createChat(content, { model: selectedModel });
+          setLoadingChatId(tempChat.id);
+
+          const newChat = await api.createChat(content, { model: selectedModel }, controller.signal);
 
           // Replace temporary chat with real chat
           setCurrentChat(newChat);
           setChats(prev => prev.map(c => (c.id === tempChat.id ? newChat : c)));
+          setLoadingChatId(newChat.id);
         }
       }
-    } catch (error) {
-      console.error('Failed to send message:', error);
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request cancelled');
+      } else {
+        console.error('Failed to send message:', error);
+      }
     } finally {
       setIsLoading(false);
+      setLoadingChatId(null);
+      abortRef.current = null;
     }
   };
 
@@ -219,11 +305,12 @@ export const Layout: React.FC = () => {
         <ChatHeader currentChat={currentChat} />
         <ChatMessages
           messages={currentChat?.messages ?? []}
-          isLoading={isLoading}
+          isLoading={isLoading && currentChat?.id === loadingChatId}
           loadingText={loadingText}
           currentModel={currentChat?.config.model ?? selectedModel}
           onModelChange={handleModelChange}
           onDeleteMessage={handleDeleteMessage}
+          onCancel={handleCancelRequest}
         />
         <ChatInput
           message={message}
