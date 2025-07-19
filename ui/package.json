@@ -1,8 +1,8 @@
 {
-  "name": "ui",
-  "productName": "ui",
+  "name": "gemiwin",
+  "productName": "gemiwin",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Gemiwin - a gui for the gemini-cli",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
