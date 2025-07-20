@@ -1,4 +1,15 @@
-export const API_URL = 'http://localhost:8080';
+declare global {
+  interface Window {
+    geminiAPI?: {
+      url: string;
+      port: number;
+    };
+  }
+}
+
+export const API_URL: string = (typeof window !== 'undefined' && window.geminiAPI?.url)
+  ? window.geminiAPI.url
+  : 'http://localhost:8080';
 
 // Extract error message returned by API if present { error: string }
 const getApiError = async (response: Response, fallback: string): Promise<string> => {

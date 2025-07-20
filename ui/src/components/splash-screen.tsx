@@ -35,7 +35,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onContinue }) => {
         </div>
       </div>
 
-      <p className="absolute bottom-20 text-sm text-neutral-500">Press the button to get started</p>
+      {/* Footer information */}
+      <div className="absolute bottom-20 flex flex-col items-center text-sm text-neutral-500 gap-1">
+        <p>Press the button to get started</p>
+        {typeof window !== 'undefined' && window.geminiAPI?.port && (
+          <p>Local API running on localhost:{window.geminiAPI.port}</p>
+        )}
+      </div>
     </div>
   );
 }; 
