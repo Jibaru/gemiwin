@@ -44,10 +44,10 @@ func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
 
 	conversation.WriteString("Your answer:")
 
-	// Escape newline characters so the entire prompt is passed as a single argument to the CLI
-	escapedPrompt := strings.ReplaceAll(conversation.String(), "\n", "\\n")
+	cmd := exec.Command("gemini")
 
-	cmd := exec.Command("gemini", "-p", escapedPrompt)
+	// We prepare the standard input of the command with the content of the conversation
+	cmd.Stdin = strings.NewReader(conversation.String())
 
 	// Prepare environment variables
 	env := os.Environ()
@@ -63,9 +63,11 @@ func (s *BotService) GetBotResponse(chat *domain.Chat) (string, error) {
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 
 	if err = cmd.Run(); err != nil {
-		return "", fmt.Errorf("error executing gemini command: %w", err)
+		return "", fmt.Errorf("error executing gemini command: %w, stderr: %s", err, stderr.String())
 	}
 
 	return strings.TrimSpace(out.String()), nil
