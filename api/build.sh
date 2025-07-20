@@ -7,7 +7,7 @@ set -e
 echo "Creating build directory..."
 mkdir -p build
 
-echo "Starting cross-compilation for env0..."
+echo "Starting cross-compilation for geminiapi..."
 
 # Supported OS and architectures
 OS_LIST=("linux" "darwin" "windows")
