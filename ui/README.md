@@ -55,12 +55,31 @@ The Electron window will open automatically.
 
 ### Packaging a distributable
 
+#### Pre-requisites
+
+Linux:
+
+```bash
+sudo apt install rpm dpkg fakeroot binutils
+```
+
+### Build
+
 ```bash
 # Build platform-specific installer (macOS, Windows, Linux)
 $ npm run make
 ```
 
 Generated installers can be found inside the `out/` directory.
+
+### Post-actions
+
+Linux:
+
+```bash
+sudo chown root:root out/gemiwin-linux-x64/chrome-sandbox
+sudo chmod 4755 out/gemiwin-linux-x64/chrome-sandbox
+```
 
 ---
 
