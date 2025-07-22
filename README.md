@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./ui/icon.png" width="120" alt="Gemiwin logo" />
+  <img src="./ui/assets/logo_transparent.gif" width="250" alt="Gemiwin logo" />
   <h1 align="center">gemiwin</h1>
 </p>
 
@@ -23,7 +23,6 @@ A **desktop chat application** that lets you converse with **Google Gemini** mod
 <img src="./ui/assets/splash.png">
 
 <img src="./ui/assets/app.png">
-
 
 ## 🏗️ Architecture
 
@@ -49,4 +48,3 @@ graph TD
 
 - **API backend** – setup, endpoints & build instructions → [api/README.md](api/README.md)
 - **Electron UI** – development workflow & packaging → [ui/README.md](ui/README.md)
-
