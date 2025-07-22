@@ -3,3 +3,4 @@ api/data
 ui/data
 
 dist/
+*.zip
