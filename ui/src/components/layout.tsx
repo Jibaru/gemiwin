@@ -305,7 +305,8 @@ export const Layout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background text-foreground">
+    <div className="relative flex h-screen bg-background text-foreground">
+      {/* Fading grid background */}
       <ChatSidebar
         chats={chats}
         currentChat={currentChat}

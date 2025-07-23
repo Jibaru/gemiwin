@@ -60,7 +60,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
   };
 
   return (
-    <div id="chat-container" className="flex-1 p-4 overflow-y-auto">
+    <div id="chat-container" className="relative flex-1 overflow-y-auto">
+      {/* Fading grid background behind messages only */}
+      <div className="pointer-events-none absolute inset-0 grid-pattern"></div>
+      <div className="relative p-4">
       {/* Model selector */}
       <div className="mb-4">
         <label htmlFor="model-select" className="mr-2 text-sm font-medium">Model:</label>
@@ -144,6 +147,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
           )}
         </div>
       )}
+      </div>
     </div>
   );
 }; 

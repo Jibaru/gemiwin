@@ -1,5 +1,4 @@
 import React from 'react';
-import icon from '../../icon.png';
 
 interface SplashScreenProps {
   onContinue: () => void;
@@ -29,8 +28,33 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onContinue }) => {
           <div className="absolute inset-0 h-40 w-40 rounded-2xl bg-gray-200 translate-y-3 group-active:translate-y-1 transition-transform" />
 
           {/* Keycap */}
-          <div className="relative h-40 w-40 rounded-2xl bg-white shadow-md flex items-center justify-center select-none group-active:translate-y-1 transition-transform">
-            <img src={icon} alt="logo" className="h-20 w-20" />
+          <div className="relative h-40 w-40 rounded-2xl overflow-hidden shadow-md select-none group-active:translate-y-1 transition-transform">
+            {/* Star symbol fills the entire button */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="none"
+              className="absolute inset-0 w-full h-full transform scale-[0.60]"
+            >
+              <path
+                d="M16 8.016A8.522 8.522 0 008.016 16h-.032A8.521 8.521 0 000 8.016v-.032A8.521 8.521 0 007.984 0h.032A8.522 8.522 0 0016 7.984v.032z"
+                fill="url(#starGradient)"
+              />
+              <defs>
+                <radialGradient
+                  id="starGradient"
+                  cx="0"
+                  cy="0"
+                  r="1"
+                  gradientUnits="userSpaceOnUse"
+                  gradientTransform="matrix(16.1326 5.4553 -43.70045 129.2322 1.588 6.503)"
+                >
+                  <stop offset="0.067" stopColor="#9168C0" />
+                  <stop offset="0.343" stopColor="#5684D1" />
+                  <stop offset="0.672" stopColor="#1BA1E3" />
+                </radialGradient>
+              </defs>
+            </svg>
           </div>
         </div>
       </div>

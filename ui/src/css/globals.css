@@ -162,4 +162,19 @@
       @apply bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-x-auto;
     }
   }
+}
+
+@layer utilities {
+  .grid-pattern {
+    /* two perpendicular gradients form the grid, color adapts per theme */
+    background-image:
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.06) 1px, transparent 1px),
+      linear-gradient(to right,  hsl(var(--foreground) / 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+
+    /* fade out the pattern as we go down */
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    pointer-events: none;
+  }
 } 
