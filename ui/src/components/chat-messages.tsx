@@ -60,10 +60,10 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
   };
 
   return (
-    <div id="chat-container" className="relative flex-1 overflow-y-auto">
+    <div id="chat-container" className="relative flex-1 min-w-0 overflow-y-auto overflow-x-hidden">
       {/* Fading grid background behind messages only */}
       <div className="pointer-events-none absolute inset-0 grid-pattern"></div>
-      <div className="relative p-4">
+      <div className="relative p-4 w-full">
       {/* Model selector */}
       <div className="mb-4">
         <label htmlFor="model-select" className="mr-2 text-sm font-medium">Model:</label>
@@ -78,8 +78,8 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isLoading,
         </select>
       </div>
       {messages.map((msg, index) => (
-        <div key={index} className={`flex my-2 message-appear ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-          <div className={`relative p-2 rounded-lg flex flex-col ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
+        <div key={index} className={`flex my-2 message-appear max-w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <div className={`relative p-2 rounded-lg flex flex-col max-w-[80%] min-w-0 overflow-auto ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
             <div>
               {msg.type === 'doc' && msg.document ? (
                 <div className="flex flex-col gap-1">

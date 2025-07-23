@@ -159,7 +159,7 @@
       @apply bg-gray-200 dark:bg-gray-700 p-1 rounded text-sm;
     }
     pre {
-      @apply bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-x-auto;
+      @apply bg-gray-200 dark:bg-gray-700 p-2 rounded overflow-x-auto w-full;
     }
   }
 }

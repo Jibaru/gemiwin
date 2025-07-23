@@ -305,7 +305,7 @@ export const Layout: React.FC = () => {
   };
 
   return (
-    <div className="relative flex h-screen bg-background text-foreground">
+    <div className="relative flex h-screen bg-background text-foreground overflow-x-hidden">
       {/* Fading grid background */}
       <ChatSidebar
         chats={chats}
@@ -315,7 +315,9 @@ export const Layout: React.FC = () => {
         onNewChat={() => setCurrentChat(null)}
       />
 
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 relative flex flex-col min-h-0 overflow-y-auto">
+        {/* Grid background spanning entire chat area */}
+        <div className="pointer-events-none absolute inset-0 grid-pattern"></div>
         <ChatHeader currentChat={currentChat} />
         <ChatMessages
           messages={currentChat?.messages ?? []}
