@@ -1,35 +1,44 @@
 @echo off
+chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-:: Step 1: Navigate to the 'ui' folder and run npm run make
-echo 🚀 Building UI with Electron Forge...
+:: Paso 1: Construir la interfaz con Electron Forge
+echo Building UI with Electron Forge...
 cd ui
-npm run make
+call npm run make
+if errorlevel 1 (
+    echo Error: UI build failed.
+    pause
+    exit /b 1
+)
 
-:: Step 2: Return to the root, copy the UI files to the 'dist' folder
-echo 📦 Copying UI files to the dist folder...
+:: Paso 2: Copiar archivos de salida al directorio 'dist'
+echo Copying UI files to the dist folder...
 cd ..
-rmdir /s /q dist
+if exist dist rmdir /s /q dist
 mkdir dist
-xcopy /E /I /H /Y ui\out\gemiwin-windows-x64\* dist\
+xcopy /E /I /H /Y "ui\out\gemiwin-win32-x64\*" "dist\"
 
-:: Step 3: Navigate to the 'api' folder and run the GO command for Windows build
-echo 🔨 Building API for Windows...
+:: Paso 3: Compilar API en Go
+echo Building API for Windows...
 cd api
-
-:: Only compile for Windows
-echo "Building Windows version..."
 set GOOS=windows
 set GOARCH=amd64
 go build -o build\geminiapi-windows-amd64.exe ./cmd/app
+if errorlevel 1 (
+    echo Error: API build failed.
+    pause
+    exit /b 1
+)
 
-:: Step 4: Copy the API binary as 'geminiapi.exe' to the 'dist' folder
-echo 🏗️ Copying the API binary...
-copy api\build\geminiapi-windows-amd64.exe dist\geminiapi.exe
+:: Paso 4: Copiar binario a la carpeta 'dist'
+echo Copying the API binary...
+cd ..
+copy /Y "api\build\geminiapi-windows-amd64.exe" "dist\geminiapi.exe"
 
-:: Step 5: Zip the contents of the 'dist' folder into gemiwin-windows-x64.zip
-echo 🗜️ Creating zip file...
-powershell Compress-Archive -Path dist\* -DestinationPath gemiwin-windows-x64.zip
+:: Paso 5: Comprimir carpeta 'dist'
+echo Creating zip file...
+powershell -Command "Compress-Archive -Path 'dist\*' -DestinationPath 'gemiwin-win32-x64.zip' -Force"
 
-echo ✅ Build completed successfully. File: gemiwin-windows-x64.zip
+echo Build completed successfully: gemiwin-win32-x64.zip
 pause
