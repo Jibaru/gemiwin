@@ -15,18 +15,25 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    // Icono base (sin extensión). Usamos ruta absoluta para que Electron Packager la encuentre sin problema
-    icon: path.resolve(__dirname, 'icon'),
+    // Explicitly reference PNG for Linux; Electron will append .ico/.icns as needed on other platforms
+    icon: path.resolve(__dirname, 'icon.png'),
   },
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({
-      // Icono del instalador (Setup.exe) y desinstalador en Windows
       setupIcon: path.resolve(__dirname, 'icon.ico'),
     }),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerRpm({
+      options: {
+        icon: path.resolve(__dirname, 'icon.png'),
+      },
+    }),
+    new MakerDeb({
+      options: {
+        icon: path.resolve(__dirname, 'icon.png'),
+      },
+    }),
   ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
