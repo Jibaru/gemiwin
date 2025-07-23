@@ -4,7 +4,6 @@ setlocal enabledelayedexpansion
 :: Step 1: Navigate to the 'ui' folder and run npm run make
 echo 🚀 Building UI with Electron Forge...
 cd ui
-npm install
 npm run make
 
 :: Step 2: Return to the root, copy the UI files to the 'dist' folder
