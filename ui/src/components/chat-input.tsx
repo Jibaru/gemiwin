@@ -1,6 +1,5 @@
-import React, { useRef, useState, DragEvent, useEffect } from 'react';
+import React, { useRef, useState, DragEvent, useEffect, KeyboardEvent } from 'react';
 import toast from 'react-hot-toast';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Paperclip, X } from 'lucide-react';
 
@@ -86,15 +85,73 @@ export const ChatInput: React.FC<ChatInputProps> = ({ message, onChange, onSend,
     }
   }, [isLoading]);
 
+  // -- Command highlighting helpers ------------------------------------
+  const HIGHLIGHT_CLASS = 'cmd-highlight';
+
+  const escapeHtml = (unsafe: string) =>
+    unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+  const getHighlightedHtml = (text: string) => {
+    const escaped = escapeHtml(text).replace(/\n/g, '<br/>');
+    // Highlight words that start with @ or /
+    return escaped.replace(/(^|\s)([@\/][\w-]+)/g, `$1<span class="${HIGHLIGHT_CLASS}">$2</span>`);
+  };
+
+  const editableRef = useRef<HTMLDivElement>(null);
+
+  // Keep the contenteditable HTML in sync when message prop changes (e.g. after send clears it)
+  useEffect(() => {
+    const el = editableRef.current;
+    if (!el) return;
+    // To avoid losing caret on every keystroke, only update when external change
+    if (document.activeElement !== el) {
+      el.innerHTML = getHighlightedHtml(message);
+    }
+  }, [message]);
+
+  const handleEditableInput = () => {
+    const el = editableRef.current;
+    if (!el) return;
+    const text = el.innerText;
+    onChange(text);
+    // Re-apply highlighting while preserving caret position at the end
+    const selection = window.getSelection();
+    const range = selection && selection.getRangeAt(0);
+    const caretOffset = range ? range.endOffset : null;
+
+    el.innerHTML = getHighlightedHtml(text);
+
+    if (caretOffset !== null) {
+      // Move caret to end (simpler than exact offset restore)
+      selection?.selectAllChildren(el);
+      selection?.collapseToEnd();
+    }
+  };
+
+  const handleEditableKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   return (
     <footer className="p-4 border-t border-border" onDragOver={handleDragOver} onDrop={handleDrop}>
       <div className="flex space-x-2 items-center">
-        <Input
-          placeholder="Type a message..."
-          value={message}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-          disabled={isLoading}
+        {/* Contenteditable message input with command highlighting */}
+        <div
+          ref={editableRef}
+          contentEditable={!isLoading}
+          role="textbox"
+          aria-multiline="false"
+          data-placeholder="Type a message..."
+          onInput={handleEditableInput}
+          onKeyDown={handleEditableKeyDown}
+          suppressContentEditableWarning
+          className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 overflow-y-auto"
         />
 
         <input

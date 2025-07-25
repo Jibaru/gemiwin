@@ -71,6 +71,22 @@
   scrollbar-color: theme('colors.accent.DEFAULT', #4b5563) transparent;
 }
 
+/* ------------------------------------------------------------
+   Contenteditable placeholder & command highlighting
+   ------------------------------------------------------------ */
+
+[contenteditable][data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #94a3b8; /* slate-400 */
+  pointer-events: none;
+}
+
+@layer utilities {
+  .cmd-highlight {
+    @apply font-semibold px-1 rounded bg-violet-200 text-violet-800 dark:bg-violet-800 dark:text-violet-100;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
