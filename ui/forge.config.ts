@@ -15,8 +15,8 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    // Explicitly reference PNG for Linux; Electron will append .ico/.icns as needed on other platforms
-    icon: path.resolve(__dirname, 'icon.png'),
+    // Provide icon without extension so Electron picks the correct format per OS (.icns, .ico, .png)
+    icon: path.resolve(__dirname, 'icon'),
   },
   rebuildConfig: {},
   makers: [
